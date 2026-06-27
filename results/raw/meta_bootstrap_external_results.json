@@ -1,0 +1,59 @@
+{
+  "1_Probit": {
+    "r2": {
+      "point": 0.3276,
+      "ci_lower": 0.1805,
+      "ci_upper": 0.3534,
+      "ci_90_lower": 0.1953,
+      "ci_90_upper": 0.3513
+    },
+    "mae": {
+      "point": 58.1,
+      "ci_lower": 54.77,
+      "ci_upper": 63.47
+    },
+    "rmse": {
+      "point": 95.15,
+      "ci_lower": 93.31,
+      "ci_upper": 105.04
+    }
+  },
+  "2_ExtendedRange": {
+    "r2": {
+      "point": 0.0258,
+      "ci_lower": -0.0011,
+      "ci_upper": 0.0333,
+      "ci_90_lower": -0.0001,
+      "ci_90_upper": 0.0319
+    },
+    "mae": {
+      "point": 568.53,
+      "ci_lower": 537.38,
+      "ci_upper": 647.77
+    },
+    "rmse": {
+      "point": 1400.48,
+      "ci_lower": 1395.12,
+      "ci_upper": 1419.72
+    }
+  },
+  "3_UniformZ": {
+    "r2": {
+      "point": 0.4136,
+      "ci_lower": 0.2962,
+      "ci_upper": 0.4143,
+      "ci_90_lower": 0.3318,
+      "ci_90_upper": 0.4116
+    },
+    "mae": {
+      "point": 59.63,
+      "ci_lower": 57.9,
+      "ci_upper": 67.06
+    },
+    "rmse": {
+      "point": 100.42,
+      "ci_lower": 100.36,
+      "ci_upper": 110.01
+    }
+  }
+}

@@ -1,0 +1,5 @@
+Zone,Condition,Median |bias| (pp),theta_adj / theta,RR_raw,RR_adj,E-value (raw),E-value (calibrated),Attenuation
+GREEN,"lpm_x_coef in (-0.026, 0.102], logit_ace > -0.002",62,0.62,1.125,1.077,1.5,1.37,Moderate
+YELLOW-B,"lpm_x_coef > -0.026, n <= 625",221,0.31,1.125,1.039,1.5,1.24,Substantial
+YELLOW-A,"lpm_x_coef > 0.102, n > 625",179,0.36,1.125,1.045,1.5,1.26,Substantial
+RED,lpm_x_coef <= -0.026,997,0.09,1.125,1.011,1.5,1.12,Near-complete

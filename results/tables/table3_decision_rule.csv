@@ -1,0 +1,5 @@
+zone,condition,expected_bias,n_test,median_bias_pp,iqr_lower_pp,iqr_upper_pp
+RED,lpm_x_coef <= -0.026,701--1419 pp,7,869.7,701.0,1418.8
+GREEN,"lpm_x_coef in (-0.026, 0.102], logit_ace > -0.002",21--85 pp,2551,47.7,21.2,84.6
+YELLOW-A,"lpm_x_coef > 0.102, n > 625",137--220 pp,869,174.5,137.0,219.8
+YELLOW-B,"lpm_x_coef > -0.026, n <= 625",68--374 pp,93,99.5,68.2,374.2

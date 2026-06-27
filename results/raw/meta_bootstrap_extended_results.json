@@ -1,0 +1,40 @@
+{
+  "Binary Y (held-out M6/M7)": {
+    "r2": {
+      "point": 0.633,
+      "ci_lower": 0.5577,
+      "ci_upper": 0.659,
+      "ci_90_lower": 0.5752,
+      "ci_90_upper": 0.6573
+    },
+    "mae": {
+      "point": 65.46,
+      "ci_lower": 63.86,
+      "ci_upper": 70.05
+    },
+    "rmse": {
+      "point": 116.56,
+      "ci_lower": 112.35,
+      "ci_upper": 127.96
+    }
+  },
+  "Continuous Y (held-out M6/M7)": {
+    "r2": {
+      "point": -3.2424,
+      "ci_lower": -13.0579,
+      "ci_upper": -1.2758,
+      "ci_90_lower": -12.1008,
+      "ci_90_upper": -1.8602
+    },
+    "mae": {
+      "point": 161.32,
+      "ci_lower": 120.41,
+      "ci_upper": 276.19
+    },
+    "rmse": {
+      "point": 208.74,
+      "ci_lower": 152.88,
+      "ci_upper": 379.98
+    }
+  }
+}
