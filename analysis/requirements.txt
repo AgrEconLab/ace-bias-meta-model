@@ -1,0 +1,24 @@
+# DREAM Pipeline — Phase 4: Reproducible Analysis Environment
+# Python 3.10+ recommended
+
+# Core scientific computing
+numpy>=1.24
+pandas>=1.5
+scipy>=1.10
+
+# Econometrics / statistics
+statsmodels>=0.14
+linearmodels>=5.0
+
+# Causal inference
+econml>=0.14
+scikit-learn>=1.2
+# TMLE is implemented manually in estimators.py (no external dependency needed)
+
+# Visualization
+matplotlib>=3.7
+seaborn>=0.12
+
+# Reproducibility
+pyyaml>=6.0
+dill>=0.3              # For saving full simulation state
