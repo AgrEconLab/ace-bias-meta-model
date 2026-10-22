@@ -36,11 +36,11 @@ Configuration-level meta-model:
   ]
 }
 
-Saved <package-root>\results\tables\meta_config_bias.csv
-Saved <package-root>\results\raw\meta_config_bias.json
+Saved ./results\tables\meta_config_bias.csv
+Saved ./results\raw\meta_config_bias.json
 === END meta_config_bias.py rc=0 elapsed=4s 2026-10-21T14:37:47Z ===
 === START meta_absolute_vs_relative.py 2026-10-21T14:37:48Z ===
-[OK] Saved <package-root>\results\compare\absolute_vs_relative_error.md
+[OK] Saved .\results\compare\absolute_vs_relative_error.md
 # Absolute vs relative estimation error
 
 | group | n | mean abs error (pp) | median abs error (pp) | mean rel error (%) | median rel error (%) | corr(abs, rel) |
@@ -83,8 +83,8 @@ Saved <package-root>\results\raw\meta_config_bias.json
 - count: 252
 - 2.5/50/97.5%: 625 / 625 / 3000
 
-Saved <package-root>\results\raw\meta_threshold_stability.json
-Saved <package-root>\results\compare\meta_threshold_stability.md
+Saved ./results\raw\meta_threshold_stability.json
+Saved ./results\compare\meta_threshold_stability.md
 === END meta_threshold_stability.py rc=0 elapsed=10s 2026-10-21T14:37:59Z ===
 === START meta_negative_effect.py 2026-10-21T14:38:00Z ===
 negative-effect configs: 126
@@ -118,9 +118,9 @@ negative-effect configs: 126
 If the RED zone contains many protective effects with low absolute error,
 the rule is not sign-symmetric and should be restricted to positive effects.
 
-Saved <package-root>\results\tables\meta_negative_effect.csv
-Saved <package-root>\results\raw\meta_negative_effect.json
-Saved <package-root>\results\compare\meta_negative_effect.md
+Saved ./results\tables\meta_negative_effect.csv
+Saved ./results\raw\meta_negative_effect.json
+Saved ./results\compare\meta_negative_effect.md
 === END meta_negative_effect.py rc=0 elapsed=40s 2026-10-21T14:38:40Z ===
 === START meta_positivity.py 2026-10-21T14:38:41Z ===
 # Positivity / propensity-overlap diagnostics (binary X)
@@ -151,8 +151,8 @@ Saved <package-root>\results\compare\meta_negative_effect.md
 Note: M2/M4/M5/M6/M7 have exogenous X (Bernoulli(0.5)) after the DGP
 correction; their propensity is constant and positivity is not a concern.
 
-Saved <package-root>\results\tables\meta_positivity.csv
-Saved <package-root>\results\compare\meta_positivity.md
+Saved ./results\tables\meta_positivity.csv
+Saved ./results\compare\meta_positivity.md
 === END meta_positivity.py rc=0 elapsed=5s 2026-10-21T14:38:46Z ===
 === START meta_multicov_correlated.py 2026-10-21T14:38:46Z ===
 # Correlated-covariate sensitivity (M8/M10)
@@ -166,8 +166,8 @@ Saved <package-root>\results\compare\meta_positivity.md
 
 Targeted sensitivity only; not the full multi-covariate extension.
 
-Saved <package-root>\results\tables\meta_multicov_correlated.csv
-Saved <package-root>\results\compare\meta_multicov_correlated.md
+Saved ./results\tables\meta_multicov_correlated.csv
+Saved ./results\compare\meta_multicov_correlated.md
 === END meta_multicov_correlated.py rc=0 elapsed=17s 2026-10-21T14:39:03Z ===
 === START meta_group_ablation.py 2026-10-21T14:39:03Z ===
 # Grouped feature importance and group removal (reviewer M4)
@@ -194,8 +194,8 @@ Saved <package-root>\results\compare\meta_multicov_correlated.md
 
 - R2=0.5506, MAE=63.14
 
-Saved <package-root>\results\tables\meta_group_ablation.csv
-Saved <package-root>\results\compare\meta_group_ablation.md
+Saved ./results\tables\meta_group_ablation.csv
+Saved ./results\compare\meta_group_ablation.md
 === END meta_group_ablation.py rc=0 elapsed=20s 2026-10-21T14:39:23Z ===
 === START meta_m5_large_sample.py 2026-10-21T14:39:23Z ===
 {
@@ -208,11 +208,11 @@ Saved <package-root>\results\compare\meta_group_ablation.md
   "adjusted_minus_direct": 9.536860789836205e-05,
   "unadjusted_minus_total": 0.0001518831221148792
 }
-[OK] Saved <package-root>\results\raw\meta_m5_large_sample.json
+[OK] Saved .\results\raw\meta_m5_large_sample.json
 === END meta_m5_large_sample.py rc=0 elapsed=10s 2026-10-21T14:39:33Z ===
 === START red_rule_2x2.py 2026-10-21T14:39:34Z ===
 Loaded 14040 rows
-Saved <package-root>\results\tables\red_rule_2x2.csv
+Saved .\results\tables\red_rule_2x2.csv
 {'zone': 'RED', 'tp': 668, 'fp': 0, 'fn': 3456, 'tn': 196, 'sensitivity': 0.16197866149369544, 'specificity': 1.0, 'ppv': 1.0, 'npv': 0.05366922234392114}
 {'zone': 'GREEN', 'tp': 2619, 'fp': 196, 'fn': 1505, 'tn': 0, 'sensitivity': 0.6350630455868089, 'specificity': 0.0, 'ppv': 0.930373001776199, 'npv': 0.0}
 === END red_rule_2x2.py rc=0 elapsed=3s 2026-10-21T14:39:36Z ===
@@ -242,10 +242,10 @@ R2=0.6567 MAE=0.0124 RMSE=0.0163
   group share:      {'effect_estimates': 0.7512237892624296, 'association_diagnostics': 0.15526774393607184, 'sample_characteristics': 0.09350846680149849}
   within-stratum delta R2: mean=-0.0259 median=-0.0241 share_bins_positive=0.10
 
-Saved <package-root>\results\raw\meta_target_sensitivity.json
-Saved <package-root>\results\tables\meta_target_importance.csv
-Saved <package-root>\results\tables\meta_target_within_stratum.csv
-Saved <package-root>\results\compare\meta_target_sensitivity.md
+Saved ./results\raw\meta_target_sensitivity.json
+Saved ./results\tables\meta_target_importance.csv
+Saved ./results\tables\meta_target_within_stratum.csv
+Saved ./results\compare\meta_target_sensitivity.md
 === END meta_target_sensitivity.py rc=0 elapsed=35s 2026-10-21T14:40:12Z ===
 === START meta_lodo_cv.py 2026-10-21T14:40:12Z ===
 held M1: n_train=10800 n_test=3240 R2=0.4928 MAE=59.43
@@ -257,18 +257,18 @@ held M6: n_train=10800 n_test=3240 R2=0.6130 MAE=61.91
 held M7: n_train=12960 n_test=1080 R2=0.4985 MAE=56.52
 LODO mean R2=0.5220 MAE=57.36
 Primary split R2=0.5506 MAE=63.14
-Saved <package-root>\results\raw\meta_lodo_cv.json
-Saved <package-root>\results\tables\meta_lodo_cv.csv
-Saved <package-root>\results\compare\meta_lodo_cv.md
+Saved ./results\raw\meta_lodo_cv.json
+Saved ./results\tables\meta_lodo_cv.csv
+Saved ./results\compare\meta_lodo_cv.md
 === END meta_lodo_cv.py rc=0 elapsed=54s 2026-10-21T14:41:06Z ===
 === START meta_domain_check.py 2026-10-21T14:41:06Z ===
 Probit: n=10800 hard=0.014 soft=0.083 median_dist=0.00
 ExtendedRange: n=2400 hard=1.000 soft=1.000 median_dist=2.40
 UniformZ: n=3600 hard=0.006 soft=0.072 median_dist=0.00
-Saved <package-root>\results\raw\meta_domain_check.json
-Saved <package-root>\results\tables\meta_domain_check.csv
-Saved <package-root>\results\tables\meta_domain_check_features.csv
-Saved <package-root>\results\compare\meta_domain_check.md
+Saved ./results\raw\meta_domain_check.json
+Saved ./results\tables\meta_domain_check.csv
+Saved ./results\tables\meta_domain_check_features.csv
+Saved ./results\compare\meta_domain_check.md
 === END meta_domain_check.py rc=0 elapsed=1s 2026-10-21T14:41:08Z ===
 === START meta_classifier_threshold.py 2026-10-21T14:41:08Z ===
 
@@ -282,9 +282,9 @@ Saved <package-root>\results\compare\meta_domain_check.md
   threshold 25%: pos_train=0.734 pos_test=0.725 kappa=0.278 balanced_acc=0.614 auc=0.764
   threshold 50%: pos_train=0.555 pos_test=0.543 kappa=0.395 balanced_acc=0.696 auc=0.781
 
-Saved <package-root>\results\raw\meta_classifier_threshold.json
-Saved <package-root>\results\tables\meta_classifier_threshold.csv
-Saved <package-root>\results\compare\meta_classifier_threshold.md
+Saved ./results\raw\meta_classifier_threshold.json
+Saved ./results\tables\meta_classifier_threshold.csv
+Saved ./results\compare\meta_classifier_threshold.md
 === END meta_classifier_threshold.py rc=0 elapsed=4s 2026-10-21T14:41:12Z ===
 ALL EXTENSION SCRIPTS COMPLETED
 script	rc	elapsed_s	start_utc	end_utc

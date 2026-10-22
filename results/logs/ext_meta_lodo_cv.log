@@ -1,4 +1,4 @@
-=== START meta_lodo_cv.py 2026-10-21T14:40:12Z ===
+=== START meta_lodo_cv.py 2026-10-22T08:51:02Z ===
 held M1: n_train=10800 n_test=3240 R2=0.4928 MAE=59.43
 held M2: n_train=12960 n_test=1080 R2=0.5841 MAE=58.12
 held M3: n_train=12960 n_test=1080 R2=0.5671 MAE=60.58
@@ -8,7 +8,7 @@ held M6: n_train=10800 n_test=3240 R2=0.6130 MAE=61.91
 held M7: n_train=12960 n_test=1080 R2=0.4985 MAE=56.52
 LODO mean R2=0.5220 MAE=57.36
 Primary split R2=0.5506 MAE=63.14
-Saved <package-root>\results\raw\meta_lodo_cv.json
-Saved <package-root>\results\tables\meta_lodo_cv.csv
-Saved <package-root>\results\compare\meta_lodo_cv.md
-=== END meta_lodo_cv.py rc=0 elapsed=54s 2026-10-21T14:41:06Z ===
+Saved ./results\raw\meta_lodo_cv.json
+Saved ./results\tables\meta_lodo_cv.csv
+Saved ./results\compare\meta_lodo_cv.md
+=== END meta_lodo_cv.py rc=0 elapsed=53s 2026-10-22T08:51:55Z ===

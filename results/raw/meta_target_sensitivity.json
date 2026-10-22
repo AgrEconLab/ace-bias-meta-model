@@ -56,109 +56,109 @@
   "targets": {
     "abs_bias_pct": {
       "r2_test": 0.5506236827605635,
-      "mae_test": 63.1397839567812,
+      "mae_test": 63.139783956781216,
       "rmse_test": 118.49620628111217,
       "importance": [
         {
           "feature": "logit_ace",
-          "importance": 0.3445540542900632,
-          "share": 0.5503065615919145,
+          "importance": 0.3445540542900631,
+          "share": 0.5503065615919152,
           "rank": 1
         },
         {
           "feature": "lpm_x_coef",
-          "importance": 0.17126237047175139,
-          "share": 0.27353271584216615,
+          "importance": 0.17126237047175125,
+          "share": 0.2735327158421663,
           "rank": 2
         },
         {
           "feature": "unadj_ace",
-          "importance": 0.06513216766825332,
-          "share": 0.10402622982450925,
+          "importance": 0.06513216766825318,
+          "share": 0.10402622982450917,
           "rank": 3
         },
         {
           "feature": "n",
-          "importance": 0.039879981200670725,
-          "share": 0.06369454968716129,
+          "importance": 0.0398799812006706,
+          "share": 0.06369454968716118,
           "rank": 4
         },
         {
           "feature": "logit_lpm_diff",
-          "importance": 0.003920396797895742,
-          "share": 0.0062614851140591465,
+          "importance": 0.0039203967978956086,
+          "share": 0.006261485114058943,
           "rank": 5
         },
         {
           "feature": "y_mean",
-          "importance": 0.0008542722760087717,
-          "share": 0.001364406057686154,
+          "importance": 0.0008542722760086719,
+          "share": 0.0013644060576859963,
           "rank": 6
         },
         {
           "feature": "z_x_coef_mag",
-          "importance": 0.0005096884102338328,
-          "share": 0.0008140518825034728,
+          "importance": 0.0005096884102337107,
+          "share": 0.000814051882503279,
           "rank": 7
         },
         {
           "feature": "y_pred_max",
-          "importance": -0.00025028413829926156,
+          "importance": -0.0002502841382993726,
           "share": 0.0,
           "rank": 8
         },
         {
           "feature": "y_pred_range",
-          "importance": -0.0012077390193098725,
+          "importance": -0.0012077390193099501,
           "share": 0.0,
           "rank": 9
         },
         {
           "feature": "x_var",
-          "importance": -0.001364495214168726,
+          "importance": -0.001364495214168815,
           "share": 0.0,
           "rank": 10
         },
         {
           "feature": "y_pred_min",
-          "importance": -0.0018064112563603851,
+          "importance": -0.0018064112563605295,
           "share": 0.0,
           "rank": 11
         },
         {
           "feature": "z_coef_mag",
-          "importance": -0.003574767295032011,
+          "importance": -0.003574767295032133,
           "share": 0.0,
           "rank": 12
         },
         {
           "feature": "y_model_r2",
-          "importance": -0.00528129400128009,
+          "importance": -0.00528129400128019,
           "share": 0.0,
           "rank": 13
         },
         {
           "feature": "z_x_r2",
-          "importance": -0.005991970272815806,
+          "importance": -0.005991970272815927,
           "share": 0.0,
           "rank": 14
         },
         {
           "feature": "adj_unadj_diff",
-          "importance": -0.016876366147323206,
+          "importance": -0.01687636614732333,
           "share": 0.0,
           "rank": 15
         }
       ],
       "group_importance": {
-        "effect_estimates": 0.5809485924300679,
-        "association_diagnostics": -0.030558746922291054,
-        "sample_characteristics": 0.039369758262510775
+        "effect_estimates": 0.5809485924300675,
+        "association_diagnostics": -0.030558746922292112,
+        "sample_characteristics": 0.039369758262510456
       },
       "group_share": {
-        "effect_estimates": 0.9278655072585899,
-        "association_diagnostics": 0.007075536996562619,
-        "sample_characteristics": 0.06505895574484745
+        "effect_estimates": 0.9278655072585906,
+        "association_diagnostics": 0.007075536996562222,
+        "sample_characteristics": 0.06505895574484717
       }
     },
     "abs_error_pp": {
@@ -168,14 +168,14 @@
       "importance": [
         {
           "feature": "lpm_x_coef",
-          "importance": 0.411206264470332,
-          "share": 0.4911380472089633,
+          "importance": 0.41120626447033193,
+          "share": 0.49113804720896326,
           "rank": 1
         },
         {
           "feature": "logit_ace",
-          "importance": 0.20282719767656138,
-          "share": 0.2422534926992094,
+          "importance": 0.20282719767656143,
+          "share": 0.24225349269920948,
           "rank": 2
         },
         {
@@ -186,20 +186,20 @@
         },
         {
           "feature": "n",
-          "importance": 0.06057341656553654,
-          "share": 0.07234789957077394,
+          "importance": 0.06057341656553655,
+          "share": 0.07234789957077396,
           "rank": 4
         },
         {
           "feature": "x_var",
-          "importance": 0.01673974664486838,
-          "share": 0.01999368002947004,
+          "importance": 0.0167397466448684,
+          "share": 0.019993680029470065,
           "rank": 5
         },
         {
           "feature": "unadj_ace",
-          "importance": 0.014930084699684465,
-          "share": 0.01783224935425685,
+          "importance": 0.014930084699684477,
+          "share": 0.017832249354256865,
           "rank": 6
         },
         {
@@ -216,8 +216,8 @@
         },
         {
           "feature": "y_mean",
-          "importance": 0.0009769785293826882,
-          "share": 0.0011668872012544874,
+          "importance": 0.000976978529382666,
+          "share": 0.0011668872012544611,
           "rank": 9
         },
         {
@@ -228,25 +228,25 @@
         },
         {
           "feature": "z_coef_mag",
-          "importance": -0.0013949151523281911,
+          "importance": -0.0013949151523282022,
           "share": 0.0,
           "rank": 11
         },
         {
           "feature": "y_pred_range",
-          "importance": -0.001832177904883403,
+          "importance": -0.0018321779048833808,
           "share": 0.0,
           "rank": 12
         },
         {
           "feature": "y_pred_min",
-          "importance": -0.0019056712402013786,
+          "importance": -0.0019056712402013899,
           "share": 0.0,
           "rank": 13
         },
         {
           "feature": "z_x_r2",
-          "importance": -0.002172526955540555,
+          "importance": -0.0021725269555405435,
           "share": 0.0,
           "rank": 14
         },
@@ -259,13 +259,13 @@
       ],
       "group_importance": {
         "effect_estimates": 0.6289635468465778,
-        "association_diagnostics": 0.11709379311485928,
-        "sample_characteristics": 0.0782901417397876
+        "association_diagnostics": 0.1170937931148593,
+        "sample_characteristics": 0.07829014173978763
       },
       "group_share": {
         "effect_estimates": 0.7512237892624296,
         "association_diagnostics": 0.15526774393607184,
-        "sample_characteristics": 0.09350846680149846
+        "sample_characteristics": 0.09350846680149849
       }
     }
   },

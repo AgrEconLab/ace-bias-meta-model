@@ -36,6 +36,14 @@ FEATURES = [
 
 TARGET = 'abs_bias_pct'
 
+# One block per (model, case, n, lambda_xy, path parameters); the 20 Monte
+# Carlo iterations within a block are not independent draws.
+GROUP_COLS = [
+    'model_type', 'case_type', 'n', 'lambda_xy',
+    'vary_param_1_name', 'vary_param_1_val',
+    'vary_param_2_name', 'vary_param_2_val',
+]
+
 ROOT = os.path.dirname(os.path.abspath(__file__))
 RAW_DIR = os.path.join(ROOT, '../results/raw')
 
@@ -52,10 +60,8 @@ def load_binary():
     df = pd.read_parquet(path)
     train = df[df['model_type'].isin(['M1', 'M5'])].copy()
     test = df[df['model_type'].isin(['M6', 'M7'])].copy()
-    X_tr, y_tr = prepare(train[FEATURES], train[TARGET].values)
-    X_te, y_te = prepare(test[FEATURES], test[TARGET].values)
     print(f"  Binary Y: train={len(train)}, test={len(test)}")
-    return X_tr, y_tr, X_te, y_te
+    return train, test
 
 
 def load_continuous():
@@ -64,10 +70,8 @@ def load_continuous():
     df = pd.read_parquet(path)
     train = df[df['model_type'].isin(['M1', 'M5'])].copy()
     test = df[df['model_type'].isin(['M6', 'M7'])].copy()
-    X_tr, y_tr = prepare(train[FEATURES], train[TARGET].values)
-    X_te, y_te = prepare(test[FEATURES], test[TARGET].values)
     print(f"  Linear Y: train={len(train)}, test={len(test)}")
-    return X_tr, y_tr, X_te, y_te
+    return train, test
 
 
 def load_external_conditions():
@@ -85,12 +89,16 @@ def load_external_conditions():
     return conditions
 
 
-def bootstrap_pass(X_tr, y_tr, test_sets, n_bootstrap=100):
-    """Run bootstrap CIs for multiple test sets simultaneously.
+def bootstrap_pass(train, test_sets, n_bootstrap=100):
+    """Run configuration-level bootstrap CIs for multiple test sets.
+
+    Resamples configurations (all 20 rows of a configuration), not individual
+    rows, so the interval reflects configuration-level Monte Carlo error. The
+    test sets are held fixed.
 
     Parameters
     ----------
-    X_tr, y_tr : training data (used for resampling)
+    train : training DataFrame (M1/M5)
     test_sets : dict of name -> (X_te, y_te, label)
     n_bootstrap : number of bootstrap iterations
 
@@ -98,7 +106,8 @@ def bootstrap_pass(X_tr, y_tr, test_sets, n_bootstrap=100):
     -------
     results : dict of name -> {'r2': {'point': ..., 'ci_lower': ..., 'ci_upper': ...}, 'mae': ...}
     """
-    n_train = X_tr.shape[0]
+    groups = [g for _, g in train.groupby(GROUP_COLS, dropna=False)]
+    X_tr, y_tr = prepare(train[FEATURES], train[TARGET].values)
     t0 = time.time()
 
     # Point estimate (full RF)
@@ -125,11 +134,12 @@ def bootstrap_pass(X_tr, y_tr, test_sets, n_bootstrap=100):
             'rmse': round(np.sqrt(mean_squared_error(y_te, yp)), 2),
         }
 
-    # Bootstrap iterations
+    # Bootstrap iterations: resample configurations, keeping each 20-row block
+    rng = np.random.RandomState(SEED)
     for i in range(n_bootstrap):
-        idx = np.random.randint(0, n_train, size=n_train)
-        Xb = X_tr.iloc[idx] if hasattr(X_tr, 'iloc') else X_tr[idx]
-        yb = y_tr[idx]
+        idx = rng.randint(0, len(groups), size=len(groups))
+        sample = pd.concat([groups[j] for j in idx], ignore_index=True)
+        Xb, yb = prepare(sample[FEATURES], sample[TARGET].values)
 
         rf = RandomForestRegressor(
             n_estimators=200, max_depth=10, min_samples_leaf=5,
@@ -196,8 +206,10 @@ def main():
 
     # ── Load data ──
     print("\n--- Loading data ---")
-    X_bin_tr, y_bin_tr, X_bin_te, y_bin_te = load_binary()
-    X_cont_tr, y_cont_tr, X_cont_te, y_cont_te = load_continuous()
+    bin_train, bin_test = load_binary()
+    cont_train, cont_test = load_continuous()
+    X_bin_te, y_bin_te = prepare(bin_test[FEATURES], bin_test[TARGET].values)
+    X_cont_te, y_cont_te = prepare(cont_test[FEATURES], cont_test[TARGET].values)
     ext_conds = load_external_conditions()
 
     # ── PASS 1: Binary regime ──
@@ -211,7 +223,7 @@ def main():
     print(f"\n{'=' * 60}")
     print("PASS 1: Binary Y regime (train M1/M5, test M6/M7 + external)")
     print(f"{'=' * 60}")
-    results_bin = bootstrap_pass(X_bin_tr, y_bin_tr, test_sets_bin, n_bootstrap=N_BOOTSTRAP)
+    results_bin = bootstrap_pass(bin_train, test_sets_bin, n_bootstrap=N_BOOTSTRAP)
 
     # ── PASS 2: Continuous regime ──
     test_sets_cont = {
@@ -221,7 +233,7 @@ def main():
     print(f"\n{'=' * 60}")
     print("PASS 2: Continuous Y regime (train M1/M5, test M6/M7)")
     print(f"{'=' * 60}")
-    results_cont = bootstrap_pass(X_cont_tr, y_cont_tr, test_sets_cont, n_bootstrap=N_BOOTSTRAP)
+    results_cont = bootstrap_pass(cont_train, test_sets_cont, n_bootstrap=N_BOOTSTRAP)
 
     # ── Merge and save ──
     results = {'binary_regime': results_bin, 'continuous_regime': results_cont}

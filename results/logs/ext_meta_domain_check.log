@@ -1,9 +1,9 @@
-=== START meta_domain_check.py 2026-10-21T14:41:06Z ===
+=== START meta_domain_check.py 2026-10-22T08:51:55Z ===
 Probit: n=10800 hard=0.014 soft=0.083 median_dist=0.00
 ExtendedRange: n=2400 hard=1.000 soft=1.000 median_dist=2.40
 UniformZ: n=3600 hard=0.006 soft=0.072 median_dist=0.00
-Saved <package-root>\results\raw\meta_domain_check.json
-Saved <package-root>\results\tables\meta_domain_check.csv
-Saved <package-root>\results\tables\meta_domain_check_features.csv
-Saved <package-root>\results\compare\meta_domain_check.md
-=== END meta_domain_check.py rc=0 elapsed=1s 2026-10-21T14:41:08Z ===
+Saved ./results\raw\meta_domain_check.json
+Saved ./results\tables\meta_domain_check.csv
+Saved ./results\tables\meta_domain_check_features.csv
+Saved ./results\compare\meta_domain_check.md
+=== END meta_domain_check.py rc=0 elapsed=1s 2026-10-22T08:51:56Z ===

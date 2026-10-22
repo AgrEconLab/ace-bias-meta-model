@@ -29,6 +29,12 @@ FEATURES = [
     'lpm_x_coef', 'y_model_r2',
 ]
 
+GROUP_COLS = [
+    'model_type', 'case_type', 'n', 'lambda_xy',
+    'vary_param_1_name', 'vary_param_1_val',
+    'vary_param_2_name', 'vary_param_2_val',
+]
+
 
 def load_and_split():
     base = os.path.dirname(os.path.abspath(__file__))
@@ -50,7 +56,8 @@ def load_and_split():
     return X_train, y_train, X_test, y_test, df
 
 
-def bootstrap_ci(X_train, y_train, X_test, y_test, n_bootstrap=100):
+def bootstrap_ci(X_train, y_train, X_test, y_test, n_bootstrap=100,
+                 train_df=None):
     """Bootstrap 95% CI for R2, MAE, RMSE on held-out test set.
 
     Procedure: refit RF on bootstrap sample of training data, evaluate on fixed test set.
@@ -78,10 +85,21 @@ def bootstrap_ci(X_train, y_train, X_test, y_test, n_bootstrap=100):
     n_train = X_train.shape[0]
     np.random.seed(SEED)
     t0 = time.time()
+    groups = None
+    if train_df is not None:
+        groups = [g for _, g in train_df.groupby(GROUP_COLS, dropna=False)]
+    rng = np.random.RandomState(SEED)
     for i in range(n_bootstrap):
-        idx = np.random.randint(0, n_train, size=n_train)
-        Xb = X_train.iloc[idx]
-        yb = y_train[idx]
+        if groups is not None:
+            idx = rng.randint(0, len(groups), size=len(groups))
+            sample = pd.concat([groups[j] for j in idx], ignore_index=True)
+            Xb = sample[FEATURES].replace([np.inf, -np.inf], np.nan)
+            Xb = Xb.fillna(Xb.median())
+            yb = sample['abs_bias_pct'].values
+        else:
+            idx = rng.randint(0, n_train, size=n_train)
+            Xb = X_train.iloc[idx]
+            yb = y_train[idx]
 
         rf = RandomForestRegressor(
             n_estimators=200, max_depth=10, min_samples_leaf=5,
@@ -248,8 +266,10 @@ if __name__ == '__main__':
     t0 = time.time()
     X_train, y_train, X_test, y_test, df = load_and_split()
 
-    # P1-4: Bootstrap CIs
-    ci = bootstrap_ci(X_train, y_train, X_test, y_test, n_bootstrap=100)
+    # P1-4: Bootstrap CIs (configuration-level resampling)
+    train_df = df[df['model_type'].isin(['M1', 'M5'])].copy()
+    ci = bootstrap_ci(X_train, y_train, X_test, y_test, n_bootstrap=100,
+                      train_df=train_df)
 
     # P1-6: Sensitivity analysis
     sa = sensitivity_analysis(X_train, y_train, X_test, y_test)

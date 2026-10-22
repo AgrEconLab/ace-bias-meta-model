@@ -2,20 +2,20 @@
   "bootstrap_ci": {
     "r2": {
       "point": 0.5506,
-      "ci_lower": 0.5047,
-      "ci_upper": 0.5808,
-      "ci_90_lower": 0.5213,
-      "ci_90_upper": 0.576
+      "ci_lower": 0.4821,
+      "ci_upper": 0.6008,
+      "ci_90_lower": 0.4981,
+      "ci_90_upper": 0.5971
     },
     "mae": {
       "point": 63.14,
-      "ci_lower": 61.09,
-      "ci_upper": 66.15
+      "ci_lower": 60.13,
+      "ci_upper": 67.79
     },
     "rmse": {
       "point": 118.5,
-      "ci_lower": 114.44,
-      "ci_upper": 124.4
+      "ci_lower": 111.68,
+      "ci_upper": 127.21
     },
     "n_bootstrap": 100,
     "method": "Percentile bootstrap (2.5th/97.5th), refit on bootstrap training sample, evaluate on fixed test set"

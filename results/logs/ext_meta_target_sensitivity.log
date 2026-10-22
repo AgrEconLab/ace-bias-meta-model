@@ -1,4 +1,4 @@
-=== START meta_target_sensitivity.py 2026-10-21T14:39:37Z ===
+=== START meta_target_sensitivity.py 2026-10-22T08:50:26Z ===
 
 === abs_bias_pct ===
 R2=0.5506 MAE=63.1398 RMSE=118.4962
@@ -8,8 +8,8 @@ R2=0.5506 MAE=63.1398 RMSE=118.4962
   n                    0.0399 share=0.064
   logit_lpm_diff       0.0039 share=0.006
   y_mean               0.0009 share=0.001
-  group importance: {'effect_estimates': 0.5809485924300676, 'association_diagnostics': -0.030558746922292043, 'sample_characteristics': 0.039369758262510435}
-  group share:      {'effect_estimates': 0.9278655072585907, 'association_diagnostics': 0.007075536996562257, 'sample_characteristics': 0.06505895574484712}
+  group importance: {'effect_estimates': 0.5809485924300675, 'association_diagnostics': -0.030558746922292112, 'sample_characteristics': 0.039369758262510456}
+  group share:      {'effect_estimates': 0.9278655072585906, 'association_diagnostics': 0.007075536996562222, 'sample_characteristics': 0.06505895574484717}
   within-stratum delta R2: mean=-0.0335 median=-0.0486 share_bins_positive=0.10
 
 === abs_error_pp ===
@@ -24,8 +24,8 @@ R2=0.6567 MAE=0.0124 RMSE=0.0163
   group share:      {'effect_estimates': 0.7512237892624296, 'association_diagnostics': 0.15526774393607184, 'sample_characteristics': 0.09350846680149849}
   within-stratum delta R2: mean=-0.0259 median=-0.0241 share_bins_positive=0.10
 
-Saved <package-root>\results\raw\meta_target_sensitivity.json
-Saved <package-root>\results\tables\meta_target_importance.csv
-Saved <package-root>\results\tables\meta_target_within_stratum.csv
-Saved <package-root>\results\compare\meta_target_sensitivity.md
-=== END meta_target_sensitivity.py rc=0 elapsed=35s 2026-10-21T14:40:12Z ===
+Saved ./results\raw\meta_target_sensitivity.json
+Saved ./results\tables\meta_target_importance.csv
+Saved ./results\tables\meta_target_within_stratum.csv
+Saved ./results\compare\meta_target_sensitivity.md
+=== END meta_target_sensitivity.py rc=0 elapsed=36s 2026-10-22T08:51:02Z ===

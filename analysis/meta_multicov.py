@@ -158,18 +158,32 @@ MULTICOV_DGPS = {
 # PART B: True ACE (Monte Carlo)
 # ═══════════════════════════════════════════════════════════════════════════
 
-def true_ace_m8(params, n_mc=200000, seed=42):
-    """True ACE for M8. Y depends on X and Z1 (not Z2)."""
+def true_ace_m8(params, case='a', n_mc=200000, seed=42):
+    """True ACE for M8. Y depends on X and Z1 (not Z2).
+
+    The centering constant is case-specific: case a draws continuous normal
+    variables, case d draws binary Bernoulli variables. Reusing the case-a
+    truth for case d shifts the estimand.
+    """
     rs = np.random.RandomState(seed)
     lam_zx = params.get('lambda_zx', 0.3)
     lam_zy = params.get('lambda_zy', 0.3)
     lam_xy = params.get('lambda_xy', 0.1)
     intercept = params.get('intercept', 0.0)
 
-    u_y = rs.normal(0, 1, n_mc)
-    z1 = _z_exogenous(n_mc, 'a', rs)
-    z2 = _z_exogenous(n_mc, 'a', rs)  # not used in Y
-    x = lam_zx * z1 + rs.normal(0, 1, n_mc)
+    if case == 'a':
+        u_y = rs.normal(0, 1, n_mc)
+        z1 = _z_exogenous(n_mc, 'a', rs)
+        z2 = _z_exogenous(n_mc, 'a', rs)  # not used in Y
+        x = lam_zx * z1 + rs.normal(0, 1, n_mc)
+    elif case == 'd':
+        u_y = rs.binomial(1, 0.5, n_mc)
+        z1 = rs.binomial(1, 0.5, n_mc).astype(float)
+        z2 = rs.binomial(1, 0.5, n_mc).astype(float)  # not used in Y
+        p_x = _logit_inv(lam_zx * (2 * z1 - 1) - 0.5)
+        x = rs.binomial(1, p_x, n_mc).astype(float)
+    else:
+        raise ValueError(f"unsupported case: {case}")
 
     y_eta = intercept + lam_xy * x + lam_zy * z1 + u_y
     centering = np.mean(y_eta)
@@ -180,12 +194,12 @@ def true_ace_m8(params, n_mc=200000, seed=42):
     return ace
 
 
-def true_ace_m9(params, n_mc=200000, seed=42):
+def true_ace_m9(params, case='a', n_mc=200000, seed=42):
     """True ACE for M9. Same Y equation as M8 (collider Z2 doesn't affect Y)."""
-    return true_ace_m8(params, n_mc, seed)
+    return true_ace_m8(params, case=case, n_mc=n_mc, seed=seed)
 
 
-def true_ace_m10(params, n_mc=200000, seed=42):
+def true_ace_m10(params, case='a', n_mc=200000, seed=42):
     """True ACE for M10. Y depends on X, Z1, Z2 — both confounders."""
     rs = np.random.RandomState(seed)
     lam_zx1 = params.get('lambda_zx', 0.3)
@@ -195,10 +209,20 @@ def true_ace_m10(params, n_mc=200000, seed=42):
     lam_xy = params.get('lambda_xy', 0.1)
     intercept = params.get('intercept', 0.0)
 
-    u_y = rs.normal(0, 1, n_mc)
-    z1 = _z_exogenous(n_mc, 'a', rs)
-    z2 = _z_exogenous(n_mc, 'a', rs)
-    x = lam_zx1 * z1 + lam_zx2 * z2 + rs.normal(0, 1, n_mc)
+    if case == 'a':
+        u_y = rs.normal(0, 1, n_mc)
+        z1 = _z_exogenous(n_mc, 'a', rs)
+        z2 = _z_exogenous(n_mc, 'a', rs)
+        x = lam_zx1 * z1 + lam_zx2 * z2 + rs.normal(0, 1, n_mc)
+    elif case == 'd':
+        u_y = rs.binomial(1, 0.5, n_mc)
+        z1 = rs.binomial(1, 0.5, n_mc).astype(float)
+        z2 = rs.binomial(1, 0.5, n_mc).astype(float)
+        p_x = _logit_inv(lam_zx1 * (2 * z1 - 1)
+                         + lam_zx2 * (2 * z2 - 1) - 0.5)
+        x = rs.binomial(1, p_x, n_mc).astype(float)
+    else:
+        raise ValueError(f"unsupported case: {case}")
 
     y_eta = intercept + lam_xy * x + lam_zy1 * z1 + lam_zy2 * z2 + u_y
     centering = np.mean(y_eta)
@@ -342,10 +366,10 @@ def run_simulation(configs):
     # Precompute true ACE for each unique param set
     true_ace_cache = {}
     for model, case, n, params in configs:
-        key = (model, tuple(sorted(params.items())))
+        key = (model, case, tuple(sorted(params.items())))
         if key not in true_ace_cache:
             t0 = time.time()
-            ace = TRUE_ACE_FUNCS[model](params)
+            ace = TRUE_ACE_FUNCS[model](params, case=case)
             true_ace_cache[key] = ace
     print(f"  Precomputed {len(true_ace_cache)} true ACE values "
           f"({time.time() - sim_start:.0f}s)")
@@ -358,7 +382,7 @@ def run_simulation(configs):
             print(f"  [{pct:.0f}%] config {cfg_idx+1}/{n_config} "
                   f"({rate:.0f} sim/s, {elapsed:.0f}s)")
 
-        key = (model, tuple(sorted(params.items())))
+        key = (model, case, tuple(sorted(params.items())))
         true_ace = true_ace_cache[key]
         gen_func = MULTICOV_DGPS[model]
 

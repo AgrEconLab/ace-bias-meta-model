@@ -1,0 +1,41 @@
+=== START meta_config_bias.py 2026-10-22T08:48:37Z ===
+Overall:
+group  n_config  mean_bias  mean_abs_bias  mean_bias_sq  mean_variance  mean_mse  bias_sq_share  variance_share  mean_mc_noise  mean_bias_sq_corrected  mc_noise_share  bias_sq_share_corrected  mean_abs_error_pp  mean_abs_rel_error_pct  mean_high_bias_rate
+  ALL       702  -0.008464       0.011434      0.000312       0.001086  0.001398       0.223174        0.776826       0.000054                0.000258        0.038841                 0.184333           0.026172              115.986961             0.939459
+
+By DAG:
+model_type  n_config  mean_bias  mean_abs_bias  mean_bias_sq  mean_variance  mean_mse  bias_sq_share  variance_share  mean_mc_noise  mean_bias_sq_corrected  mc_noise_share  bias_sq_share_corrected  mean_abs_error_pp  mean_abs_rel_error_pct  mean_high_bias_rate
+        M1       162   0.000756       0.004858      0.000057       0.001155  0.001212       0.046943        0.953057       0.000058           -8.604367e-07        0.047653                -0.000710           0.022765              114.135572             0.937037
+        M2        54  -0.000385       0.004257      0.000046       0.001046  0.001092       0.041757        0.958243       0.000052           -6.719486e-06        0.047912                -0.006155           0.022123              111.656736             0.925000
+        M3        54   0.000930       0.004947      0.000053       0.001144  0.001197       0.043877        0.956123       0.000057           -4.701044e-06        0.047806                -0.003929           0.022533              111.021554             0.905556
+        M4        54  -0.001199       0.004710      0.000048       0.001050  0.001098       0.043529        0.956471       0.000053           -4.716161e-06        0.047824                -0.004295           0.022766              110.975290             0.931481
+        M5       162  -0.015012       0.015881      0.000417       0.001071  0.001489       0.280395        0.719605       0.000054            3.638965e-04        0.035980                 0.244414           0.028251               81.370692             0.940432
+        M6       162  -0.021690       0.022274      0.000805       0.001067  0.001872       0.430138        0.569862       0.000053            7.518520e-04        0.028493                 0.401645           0.032632              159.971119             0.967593
+        M7        54  -0.001535       0.005691      0.000071       0.000998  0.001069       0.066742        0.933258       0.000050            2.146955e-05        0.046663                 0.020079           0.021868              107.744764             0.915741
+
+By N:
+   n  n_config  mean_bias  mean_abs_bias  mean_bias_sq  mean_variance  mean_mse  bias_sq_share  variance_share  mean_mc_noise  mean_bias_sq_corrected  mc_noise_share  bias_sq_share_corrected  mean_abs_error_pp  mean_abs_rel_error_pct  mean_high_bias_rate
+ 250       234  -0.008441       0.014107      0.000378       0.002475  0.002854       0.132624        0.867376       0.000124                0.000255        0.043369                 0.089255           0.040916              182.990325             0.972436
+1000       234  -0.008730       0.010988      0.000296       0.000661  0.000957       0.308812        0.691188       0.000033                0.000262        0.034559                 0.274252           0.023622              104.956396             0.947009
+5000       234  -0.008220       0.009208      0.000262       0.000121  0.000383       0.683345        0.316655       0.000006                0.000256        0.015833                 0.667512           0.013978               60.014163             0.898932
+
+Configuration-level meta-model:
+{
+  "train_n": 324,
+  "test_n": 216,
+  "r2_test": 0.46307074653700286,
+  "mae_test": 36.99482302491605,
+  "target": "configuration-level absolute bias (%)",
+  "train_models": [
+    "M1",
+    "M5"
+  ],
+  "test_models": [
+    "M6",
+    "M7"
+  ]
+}
+
+Saved ./results\tables\meta_config_bias.csv
+Saved ./results\raw\meta_config_bias.json
+=== END meta_config_bias.py rc=0 elapsed=3s 2026-10-22T08:48:40Z ===

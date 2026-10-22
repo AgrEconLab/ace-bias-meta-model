@@ -63,6 +63,14 @@ def config_summary(df: pd.DataFrame) -> pd.DataFrame:
             "bias_sq": bias ** 2,
             "bias_sq_share": bias ** 2 / mse if mse > 0 else np.nan,
             "variance_share": var / mse if mse > 0 else np.nan,
+            # (mean estimate - true)^2 contains the Monte Carlo variance of
+            # the mean, var/n_iter. Subtracting it gives an (unbiased but
+            # possibly negative) estimate of the squared systematic bias.
+            "mc_noise": var / len(g),
+            "bias_sq_corrected": bias ** 2 - var / len(g),
+            "mc_noise_share": (var / len(g)) / mse if mse > 0 else np.nan,
+            "bias_sq_share_corrected": (bias ** 2 - var / len(g)) / mse
+            if mse > 0 else np.nan,
             "mean_abs_error_pp": float(np.mean(np.abs(est - true))),
             "mean_abs_rel_error_pct": float(np.mean(np.abs((est - true) / true) * 100))
             if true != 0 else np.nan,
@@ -93,6 +101,11 @@ def aggregate(summary: pd.DataFrame, by: str | None) -> pd.DataFrame:
             "mean_mse": mse,
             "bias_sq_share": bs / mse if mse > 0 else np.nan,
             "variance_share": var / mse if mse > 0 else np.nan,
+            "mean_mc_noise": g["mc_noise"].mean(),
+            "mean_bias_sq_corrected": g["bias_sq_corrected"].mean(),
+            "mc_noise_share": g["mc_noise"].mean() / mse if mse > 0 else np.nan,
+            "bias_sq_share_corrected": g["bias_sq_corrected"].mean() / mse
+            if mse > 0 else np.nan,
             "mean_abs_error_pp": g["mean_abs_error_pp"].mean(),
             "mean_abs_rel_error_pct": g["mean_abs_rel_error_pct"].mean(),
             "mean_high_bias_rate": g["high_bias_rate"].mean(),

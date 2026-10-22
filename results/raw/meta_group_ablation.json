@@ -3,7 +3,7 @@
     "analysis": "full",
     "group": "all",
     "n_features": 15,
-    "r2_test": 0.5506236827605635,
+    "r2_test": 0.5506236827605634,
     "mae_test": 63.139783956781216
   },
   {
@@ -11,7 +11,7 @@
     "group": "E_effect",
     "n_features": 3,
     "r2_drop_mean": 0.9103493986291099,
-    "r2_drop_sd": 0.020398805931912414
+    "r2_drop_sd": 0.020398805931912407
   },
   {
     "analysis": "drop_group",
@@ -38,8 +38,8 @@
     "analysis": "grouped_permutation",
     "group": "S_sample",
     "n_features": 3,
-    "r2_drop_mean": 0.04433292418405584,
-    "r2_drop_sd": 0.004515778889648961
+    "r2_drop_mean": 0.04433292418405586,
+    "r2_drop_sd": 0.004515778889648984
   },
   {
     "analysis": "drop_group",

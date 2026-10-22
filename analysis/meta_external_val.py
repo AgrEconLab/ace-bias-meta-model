@@ -133,8 +133,13 @@ def generate_data(model_type, case, n, params, link_fn, z_dist='normal', rs=None
 
 
 def true_ace_generic(model_type, params, link_fn, z_dist='normal',
-                     n_mc=200000, seed=42):
-    """Monte Carlo total effect for any link function and Z distribution."""
+                     case='a', n_mc=200000, seed=42):
+    """Monte Carlo total effect for any link function, Z distribution, and case.
+
+    Case a uses continuous normal (or uniform) variables; case d uses binary
+    X/Z and Bernoulli errors. The centering constant must match the case, or
+    the target estimand is shifted.
+    """
     rs = np.random.RandomState(seed)
     lam_zx = params.get('lambda_zx', 0.3)
     lam_zy = params.get('lambda_zy', 0.3)
@@ -143,52 +148,98 @@ def true_ace_generic(model_type, params, link_fn, z_dist='normal',
     lam_yz = params.get('lambda_yz', 0.3)
     intercept = params.get('intercept', 0.0)
 
-    if z_dist == 'uniform':
-        u_z = rs.uniform(-2, 2, n_mc)
-        z_base = rs.uniform(-2, 2, n_mc)
-    else:
-        u_z = rs.normal(0, 1, n_mc)
-        z_base = rs.normal(0, 1, n_mc)
-    u_x = rs.normal(0, 1, n_mc)
-    u_y = rs.normal(0, 1, n_mc)
-
-    # Z for M1/M2/M3
-    if model_type in ['M1', 'M2', 'M3']:
+    if case == 'a':
         if z_dist == 'uniform':
-            z = u_z
+            u_z = rs.uniform(-2, 2, n_mc)
+            z_base = rs.uniform(-2, 2, n_mc)
         else:
-            z = 0.5 * z_base + 0.5 * u_z
+            u_z = rs.normal(0, 1, n_mc)
+            z_base = rs.normal(0, 1, n_mc)
+        u_x = rs.normal(0, 1, n_mc)
+        u_y = rs.normal(0, 1, n_mc)
 
-    # X
-    if model_type in ['M1', 'M3']:
-        x = lam_zx * z + u_x
+        # Z for M1/M2/M3
+        if model_type in ['M1', 'M2', 'M3']:
+            if z_dist == 'uniform':
+                z = u_z
+            else:
+                z = 0.5 * z_base + 0.5 * u_z
+
+        # X
+        if model_type in ['M1', 'M3']:
+            x = lam_zx * z + u_x
+        else:
+            x = u_x
+
+        # Z for M4/M5
+        if model_type in ['M4', 'M5']:
+            z = lam_xz * x + u_z
+            z = z - np.mean(z)
+
+        # Observed Y and centering
+        if model_type in ['M1', 'M2', 'M5']:
+            y_eta = intercept + lam_xy * x + lam_zy * z + u_y
+        else:
+            y_eta = intercept + lam_xy * x + u_y
+        centering = np.mean(y_eta)
+
+        # Potential outcomes (total effect)
+        if model_type == 'M5':
+            z1 = lam_xz * 1 + u_z
+            z0 = lam_xz * 0 + u_z
+            eta1 = intercept + lam_xy * 1 + lam_zy * z1 + u_y - centering
+            eta0 = intercept + lam_xy * 0 + lam_zy * z0 + u_y - centering
+        elif model_type in ['M1', 'M2']:
+            eta1 = intercept + lam_xy * 1 + lam_zy * z + u_y - centering
+            eta0 = intercept + lam_xy * 0 + lam_zy * z + u_y - centering
+        else:
+            eta1 = intercept + lam_xy * 1 + u_y - centering
+            eta0 = intercept + lam_xy * 0 + u_y - centering
+    elif case == 'd':
+        u_z = rs.binomial(1, 0.5, n_mc)
+        u_x = rs.binomial(1, 0.5, n_mc)
+        u_y = rs.binomial(1, 0.5, n_mc)
+        z_base = rs.binomial(1, 0.5, n_mc)
+
+        # Z for M1/M2/M3
+        if model_type in ['M1', 'M2', 'M3']:
+            z = z_base.astype(float)
+
+        # X
+        if model_type in ['M1', 'M3']:
+            p_x = logit_link(lam_zx * (2 * z - 1) - 0.5)
+            x = rs.binomial(1, p_x, n_mc).astype(float)
+        else:
+            x = u_x.astype(float)
+
+        # Z for M4/M5
+        if model_type in ['M4', 'M5']:
+            p_z = logit_link(lam_xz * (2 * x - 1) + 0.5 * z_base)
+            z = rs.binomial(1, p_z, n_mc).astype(float)
+
+        # Observed Y and centering
+        if model_type in ['M1', 'M2', 'M5']:
+            y_eta = intercept + lam_xy * x + lam_zy * z + u_y
+        else:
+            y_eta = intercept + lam_xy * x + u_y
+        centering = np.mean(y_eta)
+
+        # Potential outcomes (total effect)
+        if model_type == 'M5':
+            p_z1 = logit_link(lam_xz * (2 * 1 - 1) + 0.5 * z_base)
+            p_z0 = logit_link(lam_xz * (2 * 0 - 1) + 0.5 * z_base)
+            z1 = rs.binomial(1, p_z1, n_mc).astype(float)
+            z0 = rs.binomial(1, p_z0, n_mc).astype(float)
+            eta1 = intercept + lam_xy * 1 + lam_zy * z1 + u_y - centering
+            eta0 = intercept + lam_xy * 0 + lam_zy * z0 + u_y - centering
+        elif model_type in ['M1', 'M2']:
+            eta1 = intercept + lam_xy * 1 + lam_zy * z + u_y - centering
+            eta0 = intercept + lam_xy * 0 + lam_zy * z + u_y - centering
+        else:
+            eta1 = intercept + lam_xy * 1 + u_y - centering
+            eta0 = intercept + lam_xy * 0 + u_y - centering
     else:
-        x = u_x
-
-    # Z for M4/M5
-    if model_type in ['M4', 'M5']:
-        z = lam_xz * x + u_z
-        z = z - np.mean(z)
-
-    # Observed Y and centering
-    if model_type in ['M1', 'M2', 'M5']:
-        y_eta = intercept + lam_xy * x + lam_zy * z + u_y
-    else:
-        y_eta = intercept + lam_xy * x + u_y
-    centering = np.mean(y_eta)
-
-    # Potential outcomes (total effect)
-    if model_type == 'M5':
-        z1 = lam_xz * 1 + u_z
-        z0 = lam_xz * 0 + u_z
-        eta1 = intercept + lam_xy * 1 + lam_zy * z1 + u_y - centering
-        eta0 = intercept + lam_xy * 0 + lam_zy * z0 + u_y - centering
-    elif model_type in ['M1', 'M2']:
-        eta1 = intercept + lam_xy * 1 + lam_zy * z + u_y - centering
-        eta0 = intercept + lam_xy * 0 + lam_zy * z + u_y - centering
-    else:
-        eta1 = intercept + lam_xy * 1 + u_y - centering
-        eta0 = intercept + lam_xy * 0 + u_y - centering
+        raise ValueError(f"unsupported case: {case}")
 
     return float(np.mean(link_fn(eta1) - link_fn(eta0)))
 
@@ -314,9 +365,10 @@ def run_condition(name, configs, link_fn, z_dist):
     # Precompute true ACE
     ace_cache = {}
     for model, case, n, params in configs:
-        key = (model, tuple(sorted(params.items())))
+        key = (model, case, tuple(sorted(params.items())))
         if key not in ace_cache:
-            ace_cache[key] = true_ace_generic(model, params, link_fn, z_dist)
+            ace_cache[key] = true_ace_generic(model, params, link_fn, z_dist,
+                                             case=case)
     print(f"  True ACE: {len(ace_cache)} unique configs cached")
 
     for cfg_idx, (model, case, n, params) in enumerate(configs):
@@ -326,7 +378,7 @@ def run_condition(name, configs, link_fn, z_dist):
             print(f"  [{((cfg_idx+1)/n_config*100):.0f}%] cfg {cfg_idx+1}/{n_config} "
                   f"({rate:.0f} sim/s)")
 
-        key = (model, tuple(sorted(params.items())))
+        key = (model, case, tuple(sorted(params.items())))
         true_ace = ace_cache[key]
 
         for it in range(20):
