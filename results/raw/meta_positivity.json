@@ -1,0 +1,211 @@
+{
+  "description": "propensity overlap for binary-X M1/M3",
+  "by_model_lambda_n": [
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.35446047143934833,
+      "mean_ps_max": 0.4067551444124364,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M1",
+      "lambda_zx": 0.1,
+      "n": 250
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.3628520742203073,
+      "mean_ps_max": 0.3989543630188095,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M1",
+      "lambda_zx": 0.1,
+      "n": 1000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.35246035088560995,
+      "mean_ps_max": 0.39953703376201655,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M1",
+      "lambda_zx": 0.1,
+      "n": 5000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.31341142582115233,
+      "mean_ps_max": 0.45216832901575427,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M1",
+      "lambda_zx": 0.3,
+      "n": 250
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.3180888652319826,
+      "mean_ps_max": 0.4477607526079946,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M1",
+      "lambda_zx": 0.3,
+      "n": 1000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.3089751397984103,
+      "mean_ps_max": 0.4482387755337774,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M1",
+      "lambda_zx": 0.3,
+      "n": 5000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.2684945003004412,
+      "mean_ps_max": 0.4953572094473853,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M1",
+      "lambda_zx": 0.5,
+      "n": 250
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.2723074122633614,
+      "mean_ps_max": 0.49494980722196125,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M1",
+      "lambda_zx": 0.5,
+      "n": 1000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.26874066066737246,
+      "mean_ps_max": 0.4990930038119571,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M1",
+      "lambda_zx": 0.5,
+      "n": 5000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.35446047143934833,
+      "mean_ps_max": 0.4067551444124364,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M3",
+      "lambda_zx": 0.1,
+      "n": 250
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.3628520742203073,
+      "mean_ps_max": 0.3989543630188095,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M3",
+      "lambda_zx": 0.1,
+      "n": 1000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.35246035088560995,
+      "mean_ps_max": 0.39953703376201655,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M3",
+      "lambda_zx": 0.1,
+      "n": 5000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.31341142582115233,
+      "mean_ps_max": 0.45216832901575427,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M3",
+      "lambda_zx": 0.3,
+      "n": 250
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.3180888652319826,
+      "mean_ps_max": 0.4477607526079946,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M3",
+      "lambda_zx": 0.3,
+      "n": 1000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.3089751397984103,
+      "mean_ps_max": 0.4482387755337774,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M3",
+      "lambda_zx": 0.3,
+      "n": 5000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.2684945003004412,
+      "mean_ps_max": 0.4953572094473853,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M3",
+      "lambda_zx": 0.5,
+      "n": 250
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.2723074122633614,
+      "mean_ps_max": 0.49494980722196125,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M3",
+      "lambda_zx": 0.5,
+      "n": 1000
+    },
+    {
+      "n_datasets": 20,
+      "separation_share": 0.0,
+      "mean_ps_min": 0.26874066066737246,
+      "mean_ps_max": 0.4990930038119571,
+      "mean_violation_rate": 0.0,
+      "share_datasets_with_violation": 0.0,
+      "model_type": "M3",
+      "lambda_zx": 0.5,
+      "n": 5000
+    }
+  ],
+  "overall": {
+    "n_datasets": 360,
+    "separation_share": 0.0,
+    "mean_ps_min": 0.3133101000697762,
+    "mean_ps_max": 0.44920160209245474,
+    "mean_violation_rate": 0.0,
+    "share_datasets_with_violation": 0.0
+  }
+}

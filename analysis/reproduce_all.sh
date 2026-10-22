@@ -165,7 +165,9 @@ phase_3_figures_tables() {
     # Verify all 4 figures
     local figures_ok=0
     for fig in fig_meta_importance fig_meta_pred_vs_actual fig_meta_bias_by_model fig_meta_decision_tree; do
-        check_file "$FIGURES_DIR/${fig}.pdf" && ((figures_ok++))
+        if check_file "$FIGURES_DIR/${fig}.pdf"; then
+            figures_ok=$((figures_ok + 1))
+        fi
     done
     if [ "$figures_ok" -eq 4 ]; then
         ok "All 4 figures present in $FIGURES_DIR"
@@ -182,20 +184,15 @@ phase_3_figures_tables() {
     # Verify tables
     local tables_ok=0
     for tbl in table1_feature_importance table2_per_dag_rsquared table3_decision_rule; do
-        check_file "$TABLES_DIR/${tbl}.csv" && ((tables_ok++))
+        if check_file "$TABLES_DIR/${tbl}.csv"; then
+            tables_ok=$((tables_ok + 1))
+        fi
     done
     if [ "$tables_ok" -eq 3 ]; then
         ok "All 3 manuscript tables present in $TABLES_DIR"
     else
         warn "Expected 3 tables, found $tables_ok"
     fi
-
-    # 3c. E-value calibration (Table 4)
-    info "meta_evalue.py — E-value calibration table (<1 sec)..."
-    timer_start
-    cd "$PROJECT_DIR" && python analysis/meta_evalue.py
-    timer_end
-    check_file "$TABLES_DIR/evalue_calibration.csv" || return 1
 
     echo ""
     ok "Phase 3 complete — all figures and tables exported."
@@ -210,53 +207,59 @@ check_all_outputs() {
 
     # Raw data files
     info "Checking raw data files..."
-    check_file "$RAW_DIR/meta_training_data.parquet"        || ((missing++))
-    check_file "$RAW_DIR/meta_linear_data.parquet"          || ((missing++))
-    check_file "$RAW_DIR/meta_ext_1_Probit.parquet"         || ((missing++))
-    check_file "$RAW_DIR/meta_ext_2_ExtendedRange.parquet"  || ((missing++))
-    check_file "$RAW_DIR/meta_ext_3_UniformZ.parquet"       || ((missing++))
+    check_file "$RAW_DIR/meta_training_data.parquet"        || missing=$((missing + 1))
+    check_file "$RAW_DIR/meta_linear_data.parquet"          || missing=$((missing + 1))
+    check_file "$RAW_DIR/meta_ext_1_Probit.parquet"         || missing=$((missing + 1))
+    check_file "$RAW_DIR/meta_ext_2_ExtendedRange.parquet"  || missing=$((missing + 1))
+    check_file "$RAW_DIR/meta_ext_3_UniformZ.parquet"       || missing=$((missing + 1))
 
     # JSON results
     info "Checking JSON results..."
-    check_file "$RAW_DIR/meta_robustness_results.json"      || ((missing++))
-    check_file "$RAW_DIR/meta_bootstrap_extended_results.json" || ((missing++))
-    check_file "$RAW_DIR/meta_bootstrap_external_results.json" || ((missing++))
+    check_file "$RAW_DIR/meta_robustness_results.json"      || missing=$((missing + 1))
+    check_file "$RAW_DIR/meta_bootstrap_extended_results.json" || missing=$((missing + 1))
+    check_file "$RAW_DIR/meta_bootstrap_external_results.json" || missing=$((missing + 1))
 
     # Figures
     info "Checking figures..."
-    check_file "$FIGURES_DIR/fig_meta_importance.pdf"       || ((missing++))
-    check_file "$FIGURES_DIR/fig_meta_pred_vs_actual.pdf"   || ((missing++))
-    check_file "$FIGURES_DIR/fig_meta_bias_by_model.pdf"    || ((missing++))
-    check_file "$FIGURES_DIR/fig_meta_decision_tree.pdf"    || ((missing++))
+    check_file "$FIGURES_DIR/fig_meta_importance.pdf"       || missing=$((missing + 1))
+    check_file "$FIGURES_DIR/fig_meta_pred_vs_actual.pdf"   || missing=$((missing + 1))
+    check_file "$FIGURES_DIR/fig_meta_bias_by_model.pdf"    || missing=$((missing + 1))
+    check_file "$FIGURES_DIR/fig_meta_decision_tree.pdf"    || missing=$((missing + 1))
 
     # Tables
     info "Checking tables..."
-    check_file "$TABLES_DIR/table1_feature_importance.csv"  || ((missing++))
-    check_file "$TABLES_DIR/table2_per_dag_rsquared.csv"    || ((missing++))
-    check_file "$TABLES_DIR/table3_decision_rule.csv"       || ((missing++))
-    check_file "$TABLES_DIR/evalue_calibration.csv"         || ((missing++))
+    check_file "$TABLES_DIR/table1_feature_importance.csv"  || missing=$((missing + 1))
+    check_file "$TABLES_DIR/table2_per_dag_rsquared.csv"    || missing=$((missing + 1))
+    check_file "$TABLES_DIR/table3_decision_rule.csv"       || missing=$((missing + 1))
+    check_file "$TABLES_DIR/table3_decision_tree_text.txt"  || missing=$((missing + 1))
+    check_file "$TABLES_DIR/lpm_logit_comparison.csv"       || missing=$((missing + 1))
+    for fig in fig_meta_importance fig_meta_pred_vs_actual fig_meta_bias_by_model fig_meta_decision_tree; do
+        check_file "$FIGURES_DIR/${fig}.jpg" || missing=$((missing + 1))
+    done
 
     echo ""
     if [ "$missing" -eq 0 ]; then
-        ok "All 19 output files present. Manuscript is fully reproducible."
+        ok "All expected output files present."
     else
         warn "$missing output file(s) missing. Re-run the corresponding phase."
+        return 1
     fi
 }
 
 # ── Main ─────────────────────────────────────────────────────────────────────
 
 main() {
+    local mode="${1:-}"
     echo ""
     echo "╔══════════════════════════════════════════════════════════════════╗"
     echo "║      Meta-Model Manuscript — Full Reproduction Pipeline        ║"
     echo "╚══════════════════════════════════════════════════════════════════╝"
     echo "  Project: $PROJECT_DIR"
-    echo "  Mode:    $1"
+    echo "  Mode:    ${mode:-full}"
     echo "  Date:    $(date)"
     echo ""
 
-    case "$1" in
+    case "$mode" in
         "--check")
             check_all_outputs
             ;;
@@ -274,7 +277,7 @@ main() {
             echo ""
             echo "  Summary:"
             echo "    Raw data:   $RAW_DIR/"
-            echo "    Figures:    $FIGURES_DIR/  (4 PDF files)"
+            echo "    Figures:    $FIGURES_DIR/  (4 PDF + 4 JPG files)"
             echo "    Tables:     $TABLES_DIR/   (4 CSV files)"
             echo "    JSON:       $RAW_DIR/      (3 result files)"
             echo ""

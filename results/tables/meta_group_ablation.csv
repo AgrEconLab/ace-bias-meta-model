@@ -1,0 +1,8 @@
+analysis,group,n_features,r2_test,mae_test,r2_drop_mean,r2_drop_sd
+full,all,15,0.5506236827605635,63.139783956781216,,
+grouped_permutation,E_effect,3,,,0.9103493986291099,0.020398805931912414
+drop_group,E_effect,12,-0.015710350454427813,106.90776119813029,,
+grouped_permutation,A_association_diagnostics,9,,,-0.009287496791508244,0.0033798031383763137
+drop_group,A_association_diagnostics,6,0.5515171128290977,62.69490827585016,,
+grouped_permutation,S_sample,3,,,0.04433292418405584,0.004515778889648961
+drop_group,S_sample,12,0.5639051528125167,67.0207461842753,,

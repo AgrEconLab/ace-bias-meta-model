@@ -1,0 +1,16 @@
+=== START meta_classifier_threshold.py 2026-10-21T14:41:08Z ===
+
+=== primary_heldout ===
+  threshold  5%: pos_train=0.939 pos_test=0.955 kappa=0.000 balanced_acc=0.500 auc=0.739
+  threshold 25%: pos_train=0.711 pos_test=0.792 kappa=0.255 balanced_acc=0.596 auc=0.782
+  threshold 50%: pos_train=0.515 pos_test=0.637 kappa=0.392 balanced_acc=0.696 auc=0.787
+
+=== random_stratified ===
+  threshold  5%: pos_train=0.939 pos_test=0.942 kappa=0.000 balanced_acc=0.500 auc=0.722
+  threshold 25%: pos_train=0.734 pos_test=0.725 kappa=0.278 balanced_acc=0.614 auc=0.764
+  threshold 50%: pos_train=0.555 pos_test=0.543 kappa=0.395 balanced_acc=0.696 auc=0.781
+
+Saved <package-root>\results\raw\meta_classifier_threshold.json
+Saved <package-root>\results\tables\meta_classifier_threshold.csv
+Saved <package-root>\results\compare\meta_classifier_threshold.md
+=== END meta_classifier_threshold.py rc=0 elapsed=4s 2026-10-21T14:41:12Z ===

@@ -1,0 +1,43 @@
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.egg-info/
+.pytest_cache/
+
+# Environment
+.env
+.venv/
+venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Logs
+*.log
+# Reproducibility logs (simulation only; no raw data)
+!results/logs/*.log
+
+# Submission artifacts
+*.docx
+American Statistician/
+Biometrical Journal/
+CLAUDE.md*
+*.backup-*
+manuscript_draft*.md
+supplement*.md
+cover_letter.md
+FILE_RELATIONS.md*
+modifications_for_biomj.md
+review_report.md
+
+# Internal tooling
+.claude/

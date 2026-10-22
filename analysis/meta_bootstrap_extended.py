@@ -1,12 +1,12 @@
 """
-Extended Bootstrap CI: binary Y, continuous Y, and external validation.
+Extended Bootstrap CI: binary Y, linear Y, and external validation.
 
 For each bootstrap iteration (100 iters):
   1. Resample M1/M5 from binary-Y training data with replacement
   2. Refit RF (200 trees, depth=10, leaf=5)
   3. Evaluate on:
      a. Binary Y held-out (M6/M7 from meta_training_data.parquet)
-     b. Continuous Y held-out (M6/M7 from meta_linear_data.parquet)
+     b. Linear Y held-out (M6/M7 from meta_linear_data.parquet)
      c. External validation conditions (meta_ext_*.parquet, if available)
 
 Outputs: results/raw/meta_bootstrap_extended_results.json
@@ -27,7 +27,7 @@ N_BOOTSTRAP = 100
 
 FEATURES = [
     'n', 'y_mean', 'x_var',
-    'logit_ace', 'lpm_ace', 'logit_lpm_diff',
+    'logit_ace', 'logit_lpm_diff',
     'unadj_ace', 'adj_unadj_diff',
     'z_coef_mag', 'z_x_coef_mag', 'z_x_r2',
     'y_pred_min', 'y_pred_max', 'y_pred_range',
@@ -66,7 +66,7 @@ def load_continuous():
     test = df[df['model_type'].isin(['M6', 'M7'])].copy()
     X_tr, y_tr = prepare(train[FEATURES], train[TARGET].values)
     X_te, y_te = prepare(test[FEATURES], test[TARGET].values)
-    print(f"  Continuous Y: train={len(train)}, test={len(test)}")
+    print(f"  Linear Y: train={len(train)}, test={len(test)}")
     return X_tr, y_tr, X_te, y_te
 
 
@@ -104,7 +104,7 @@ def bootstrap_pass(X_tr, y_tr, test_sets, n_bootstrap=100):
     # Point estimate (full RF)
     rf_full = RandomForestRegressor(
         n_estimators=1000, max_depth=10, min_samples_leaf=5,
-        n_jobs=-1, random_state=SEED
+        n_jobs=1, random_state=SEED
     )
     rf_full.fit(X_tr, y_tr)
 
@@ -133,7 +133,7 @@ def bootstrap_pass(X_tr, y_tr, test_sets, n_bootstrap=100):
 
         rf = RandomForestRegressor(
             n_estimators=200, max_depth=10, min_samples_leaf=5,
-            n_jobs=-1, random_state=SEED + i
+            n_jobs=1, random_state=SEED + i
         )
         rf.fit(Xb, yb)
 

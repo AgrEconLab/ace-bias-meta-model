@@ -1,128 +1,111 @@
 {
   "bootstrap_ci": {
     "r2": {
-      "point": 0.633,
-      "ci_lower": 0.5511,
-      "ci_upper": 0.6495,
-      "ci_90_lower": 0.5574,
-      "ci_90_upper": 0.647
+      "point": 0.5506,
+      "ci_lower": 0.5047,
+      "ci_upper": 0.5808,
+      "ci_90_lower": 0.5213,
+      "ci_90_upper": 0.576
     },
     "mae": {
-      "point": 65.46,
-      "ci_lower": 64.06,
-      "ci_upper": 70.58
+      "point": 63.14,
+      "ci_lower": 61.09,
+      "ci_upper": 66.15
     },
     "rmse": {
-      "point": 116.56,
-      "ci_lower": 113.92,
-      "ci_upper": 128.92
+      "point": 118.5,
+      "ci_lower": 114.44,
+      "ci_upper": 124.4
     },
     "n_bootstrap": 100,
     "method": "Percentile bootstrap (2.5th/97.5th), refit on bootstrap training sample, evaluate on fixed test set"
   },
   "sensitivity_analysis": {
     "default": {
-      "r2": 0.633,
-      "mae": 65.46
+      "r2": 0.5506,
+      "mae": 63.14
     },
     "sweep": [
       {
         "param": "n_est=100",
-        "r2": 0.6319,
-        "mae": 65.7
+        "r2": 0.5526,
+        "mae": 63.13
       },
       {
         "param": "n_est=500",
-        "r2": 0.6331,
-        "mae": 65.5
+        "r2": 0.5497,
+        "mae": 63.2
       },
       {
         "param": "n_est=1000",
-        "r2": 0.633,
-        "mae": 65.46
+        "r2": 0.5506,
+        "mae": 63.14
       },
       {
         "param": "n_est=2000",
-        "r2": 0.6336,
-        "mae": 65.37
+        "r2": 0.551,
+        "mae": 63.15
       },
       {
         "param": "depth=5",
-        "r2": 0.6361,
-        "mae": 66.42
+        "r2": 0.564,
+        "mae": 64.27
       },
       {
         "param": "depth=10",
-        "r2": 0.633,
-        "mae": 65.46
+        "r2": 0.5506,
+        "mae": 63.14
       },
       {
         "param": "depth=15",
-        "r2": 0.6309,
-        "mae": 65.65
+        "r2": 0.5513,
+        "mae": 62.86
       },
       {
         "param": "depth=20",
-        "r2": 0.6305,
-        "mae": 65.77
+        "r2": 0.5512,
+        "mae": 62.89
       },
       {
         "param": "depth=None",
-        "r2": 0.6305,
-        "mae": 65.79
+        "r2": 0.5512,
+        "mae": 62.89
       },
       {
         "param": "leaf=1",
-        "r2": 0.6186,
-        "mae": 67.56
+        "r2": 0.5529,
+        "mae": 63.88
       },
       {
         "param": "leaf=3",
-        "r2": 0.628,
-        "mae": 66.3
+        "r2": 0.5467,
+        "mae": 63.72
       },
       {
         "param": "leaf=5",
-        "r2": 0.633,
-        "mae": 65.46
+        "r2": 0.5506,
+        "mae": 63.14
       },
       {
         "param": "leaf=10",
-        "r2": 0.6495,
-        "mae": 63.83
+        "r2": 0.5647,
+        "mae": 61.69
       },
       {
         "param": "leaf=20",
-        "r2": 0.6589,
-        "mae": 63.01
+        "r2": 0.5778,
+        "mae": 60.23
       }
     ],
     "seed_stability": {
-      "r2_mean": 0.6327,
+      "r2_mean": 0.5503,
       "r2_sd": 0.001,
       "r2_range": [
-        0.6309,
-        0.635
+        0.5489,
+        0.552
       ],
-      "mae_mean": 65.46,
-      "mae_sd": 0.0723
+      "mae_mean": 63.16,
+      "mae_sd": 0.0602
     }
-  },
-  "bootstrap_ci_continuous_y": {
-    "r2": {
-      "point": 0.8306,
-      "ci_lower": 0.7529,
-      "ci_upper": 0.8394,
-      "ci_90_lower": 0.7729,
-      "ci_90_upper": 0.8364
-    },
-    "mae": {
-      "point": 23.3,
-      "ci_lower": 22.16,
-      "ci_upper": 26.11
-    },
-    "rmse": null,
-    "n_bootstrap": 100,
-    "method": "Percentile bootstrap (2.5th/97.5th), refit on continuous Y M1/M5, evaluate on continuous Y M6/M7"
   }
 }

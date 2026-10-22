@@ -1,40 +1,101 @@
 {
-  "Binary Y (held-out M6/M7)": {
-    "r2": {
-      "point": 0.633,
-      "ci_lower": 0.5577,
-      "ci_upper": 0.659,
-      "ci_90_lower": 0.5752,
-      "ci_90_upper": 0.6573
+  "binary_regime": {
+    "Binary Y (held-out M6/M7)": {
+      "r2": {
+        "point": 0.5506,
+        "ci_lower": 0.5047,
+        "ci_upper": 0.5808,
+        "ci_90_lower": 0.5213,
+        "ci_90_upper": 0.576
+      },
+      "mae": {
+        "point": 63.14,
+        "ci_lower": 61.09,
+        "ci_upper": 66.15
+      },
+      "rmse": {
+        "point": 118.5,
+        "ci_lower": 114.44,
+        "ci_upper": 124.4
+      }
     },
-    "mae": {
-      "point": 65.46,
-      "ci_lower": 63.86,
-      "ci_upper": 70.05
+    "External: 1_Probit": {
+      "r2": {
+        "point": 0.493,
+        "ci_lower": 0.3629,
+        "ci_upper": 0.5069,
+        "ci_90_lower": 0.3744,
+        "ci_90_upper": 0.5046
+      },
+      "mae": {
+        "point": 51.69,
+        "ci_lower": 49.56,
+        "ci_upper": 56.81
+      },
+      "rmse": {
+        "point": 91.03,
+        "ci_lower": 89.78,
+        "ci_upper": 102.04
+      }
     },
-    "rmse": {
-      "point": 116.56,
-      "ci_lower": 112.35,
-      "ci_upper": 127.96
+    "External: 2_ExtendedRange": {
+      "r2": {
+        "point": 0.0112,
+        "ci_lower": -0.0185,
+        "ci_upper": 0.0287,
+        "ci_90_lower": -0.0136,
+        "ci_90_upper": 0.0249
+      },
+      "mae": {
+        "point": 744.25,
+        "ci_lower": 720.81,
+        "ci_upper": 809.73
+      },
+      "rmse": {
+        "point": 1790.04,
+        "ci_lower": 1774.18,
+        "ci_upper": 1816.75
+      }
+    },
+    "External: 3_UniformZ": {
+      "r2": {
+        "point": 0.5141,
+        "ci_lower": 0.4764,
+        "ci_upper": 0.5323,
+        "ci_90_lower": 0.4845,
+        "ci_90_upper": 0.5282
+      },
+      "mae": {
+        "point": 51.57,
+        "ci_lower": 50.21,
+        "ci_upper": 53.71
+      },
+      "rmse": {
+        "point": 93.37,
+        "ci_lower": 91.61,
+        "ci_upper": 96.92
+      }
     }
   },
-  "Continuous Y (held-out M6/M7)": {
-    "r2": {
-      "point": -3.2424,
-      "ci_lower": -13.0579,
-      "ci_upper": -1.2758,
-      "ci_90_lower": -12.1008,
-      "ci_90_upper": -1.8602
-    },
-    "mae": {
-      "point": 161.32,
-      "ci_lower": 120.41,
-      "ci_upper": 276.19
-    },
-    "rmse": {
-      "point": 208.74,
-      "ci_lower": 152.88,
-      "ci_upper": 379.98
+  "continuous_regime": {
+    "Continuous Y (held-out M6/M7)": {
+      "r2": {
+        "point": 0.8055,
+        "ci_lower": 0.7121,
+        "ci_upper": 0.84,
+        "ci_90_lower": 0.7261,
+        "ci_90_upper": 0.8344
+      },
+      "mae": {
+        "point": 17.88,
+        "ci_lower": 17.14,
+        "ci_upper": 20.15
+      },
+      "rmse": {
+        "point": 35.09,
+        "ci_lower": 31.83,
+        "ci_upper": 42.69
+      }
     }
   }
 }

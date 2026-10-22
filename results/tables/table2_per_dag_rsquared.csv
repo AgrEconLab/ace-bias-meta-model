@@ -1,8 +1,8 @@
 dag,structure,r_squared,high_bias_rate
-M6,Collider,0.676,97%
-M2,Outcome Predictor,0.54,94%
-M4,Exposure Descendant,0.526,93%
-M7,Outcome Descendant,0.419,96%
-M3,Exposure Predictor,0.581,93%
-M1,Confounding,0.493,94%
-M5,Mediation,0.568,93%
+M6,Collider,0.646,97%
+M2,Outcome Predictor,0.593,94%
+M4,Exposure Descendant,0.512,94%
+M7,Outcome Descendant,0.42,91%
+M3,Exposure Predictor,0.611,93%
+M1,Confounding,0.48,94%
+M5,Mediation,0.643,93%

@@ -31,12 +31,14 @@ def _logit_inv(x):
 
 FEATURES = [
     'n', 'y_mean', 'x_var',
-    'logit_ace', 'lpm_ace', 'logit_lpm_diff',
+    'logit_ace', 'logit_lpm_diff',
     'unadj_ace', 'adj_unadj_diff',
     'z_coef_mag', 'z_x_coef_mag', 'z_x_r2',
     'y_pred_min', 'y_pred_max', 'y_pred_range',
     'lpm_x_coef', 'y_model_r2',
 ]
+
+TREE_FEATURES = ['lpm_x_coef', 'n']
 
 Z_NAMES = ['Z1', 'Z2']
 Z_FORMULA = '+'.join(Z_NAMES)       # "Z1+Z2"
@@ -557,11 +559,11 @@ def main():
     # Train a depth-3 decision tree on single-covariate data
     dt_single = DecisionTreeRegressor(max_depth=3, min_samples_leaf=10,
                                       random_state=SEED)
-    dt_single.fit(X_train, y_train)
-    print(f"\nTree trained on single-covariate M1/M5:")
+    dt_single.fit(X_train[TREE_FEATURES], y_train)
+    print(f"\nTwo-input tree trained on single-covariate M1/M5:")
     print(f"  R2 on single held-out (M6/M7): "
-          f"{r2_score(y_test_s, dt_single.predict(X_test_s)):.4f}")
-    rule_text = export_text(dt_single, feature_names=FEATURES,
+          f"{r2_score(y_test_s, dt_single.predict(X_test_s[TREE_FEATURES])):.4f}")
+    rule_text = export_text(dt_single, feature_names=TREE_FEATURES,
                             show_weights=True, decimals=3)
     for line in rule_text.strip().split('\n'):
         print(f"    {line}")
@@ -570,8 +572,8 @@ def main():
     for model in ['M8', 'M9', 'M10']:
         sub = multicov_df[multicov_df['model_type'] == model]
         X_sub, y_sub = prepare(sub[FEATURES], sub['abs_bias_pct'].values)
-        r2_m = r2_score(y_sub, dt_single.predict(X_sub))
-        mae_m = mean_absolute_error(y_sub, dt_single.predict(X_sub))
+        r2_m = r2_score(y_sub, dt_single.predict(X_sub[TREE_FEATURES]))
+        mae_m = mean_absolute_error(y_sub, dt_single.predict(X_sub[TREE_FEATURES]))
         print(f"  {model}: R2={r2_m:.4f}, MAE={mae_m:.2f}pp")
 
     # ── 7. Feature importance comparison ──

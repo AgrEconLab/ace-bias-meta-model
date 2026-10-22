@@ -1,0 +1,10 @@
+{
+  "N": 5000000,
+  "seed": 42,
+  "adjusted": 0.020437660649368,
+  "direct_effect": 0.020342292041469638,
+  "unadjusted": 0.038796040089506996,
+  "total_effect": 0.03864415696739212,
+  "adjusted_minus_direct": 9.536860789836205e-05,
+  "unadjusted_minus_total": 0.0001518831221148792
+}

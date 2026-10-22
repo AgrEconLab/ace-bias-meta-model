@@ -14,7 +14,7 @@ import sys, os, time
 import warnings
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
-from dgp import simulate_model, get_true_ace_case
+from dgp import simulate_model, get_true_ace_case, get_true_direct_effect_case
 from estimators import logit_ace_gcomp, lpm_ace_ols
 from config import CONFIG, DEFAULT_SEED
 
@@ -98,9 +98,14 @@ def generate_training_data():
         if key not in true_ace_cache:
             if (idx + 1) % 50 == 0:
                 print(f"  true ACE: {idx+1}/{n_config}")
-            true_ace_cache[key] = get_true_ace_case(
-                model, case, params, n_mc=100000, seed=42
-            )
+            true_ace_cache[key] = {
+                'total': get_true_ace_case(
+                    model, case, params, n_mc=100000, seed=42
+                ),
+                'direct': get_true_direct_effect_case(
+                    model, case, params, n_mc=100000, seed=42
+                ),
+            }
 
     # ── Run simulations ──
     print(f"\nRunning {n_config} × {N_ITER} = {n_total} simulations...")
@@ -109,7 +114,8 @@ def generate_training_data():
 
     for cfg_idx, (model, case, n, params) in enumerate(configs):
         key = _params_key(params) + f"|model={model}|case={case}"
-        true_ace = true_ace_cache[key]
+        true_ace = true_ace_cache[key]['total']
+        true_ace_direct = true_ace_cache[key]['direct']
         vary_names = MODEL_VARY_PARAMS[model]
 
         if (cfg_idx + 1) % 20 == 0:
@@ -189,12 +195,16 @@ def generate_training_data():
                 'lpm_x_coef': lpm_x_coef,
                 'y_model_r2': y_model_r2,
 
-                # Targets
+                # Targets (total effect = main target; direct effect for M5)
                 'true_ace': true_ace,
+                'true_ace_direct': true_ace_direct,
                 'logit_bias_pct': logit_bias_pct,
                 'lpm_bias_pct': lpm_bias_pct,
+                'direct_error_pct': (logit_ace - true_ace_direct) / abs(true_ace_direct) * 100,
                 'abs_bias_pct': abs(logit_bias_pct),
                 'abs_bias_lpm_pct': abs(lpm_bias_pct),
+                'abs_error_pp': abs(logit_ace - true_ace),
+                'abs_error_lpm_pp': abs(lpm_ace - true_ace),
                 'high_bias': int(abs(logit_bias_pct) > 5),
                 'lpm_wins': int(abs(lpm_bias_pct) < abs(logit_bias_pct)),
 

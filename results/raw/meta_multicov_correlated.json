@@ -1,0 +1,66 @@
+{
+  "M10_rho0.0": {
+    "n": 40,
+    "mean_abs_error_pp": 0.008016296926805522,
+    "mean_z_coef_mag": 0.2763198795457388,
+    "corr_zcoef_error": 0.2811980838181642,
+    "cv_r2": 0.32069514915874087,
+    "cv_mae": 0.0030190849913205925,
+    "features": [
+      "logit_ace",
+      "lpm_x_coef",
+      "z_coef_mag",
+      "z_x_coef_mag",
+      "z_x_r2",
+      "y_model_r2"
+    ]
+  },
+  "M10_rho0.6": {
+    "n": 40,
+    "mean_abs_error_pp": 0.007698317287301906,
+    "mean_z_coef_mag": 0.29197603405846034,
+    "corr_zcoef_error": 0.45961462377110923,
+    "cv_r2": 0.6148363028011206,
+    "cv_mae": 0.0027090404010435194,
+    "features": [
+      "logit_ace",
+      "lpm_x_coef",
+      "z_coef_mag",
+      "z_x_coef_mag",
+      "z_x_r2",
+      "y_model_r2"
+    ]
+  },
+  "M8_rho0.0": {
+    "n": 40,
+    "mean_abs_error_pp": 0.007143279986941862,
+    "mean_z_coef_mag": 0.26913666151507587,
+    "corr_zcoef_error": 0.17527865825783576,
+    "cv_r2": 0.27492184289391797,
+    "cv_mae": 0.003899781140716202,
+    "features": [
+      "logit_ace",
+      "lpm_x_coef",
+      "z_coef_mag",
+      "z_x_coef_mag",
+      "z_x_r2",
+      "y_model_r2"
+    ]
+  },
+  "M8_rho0.6": {
+    "n": 40,
+    "mean_abs_error_pp": 0.007143279986941864,
+    "mean_z_coef_mag": 0.27126988428421617,
+    "corr_zcoef_error": 0.14724980226271267,
+    "cv_r2": 0.25818872039772345,
+    "cv_mae": 0.004116125675023684,
+    "features": [
+      "logit_ace",
+      "lpm_x_coef",
+      "z_coef_mag",
+      "z_x_coef_mag",
+      "z_x_r2",
+      "y_model_r2"
+    ]
+  }
+}

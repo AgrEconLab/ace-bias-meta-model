@@ -24,7 +24,7 @@ from sklearn.inspection import permutation_importance
 SEED = 20240625
 FEATURES = [
     'n', 'y_mean', 'x_var',
-    'logit_ace', 'lpm_ace', 'logit_lpm_diff',
+    'logit_ace', 'logit_lpm_diff',
     'unadj_ace', 'adj_unadj_diff',
     'z_coef_mag', 'z_x_coef_mag', 'z_x_r2',
     'y_pred_min', 'y_pred_max', 'y_pred_range',
@@ -45,7 +45,7 @@ def probit_link(x):
 # ═══════════════════════════════════════════════════════════════════════════
 
 def generate_data(model_type, case, n, params, link_fn, z_dist='normal', rs=None):
-    """Generate data from a given DAG with parameterized link and Z distribution."""
+    """Generate data from a corrected DAG with parameterized link and Z distribution."""
     if rs is None:
         rs = np.random.RandomState(SEED)
 
@@ -58,67 +58,83 @@ def generate_data(model_type, case, n, params, link_fn, z_dist='normal', rs=None
 
     # Disturbances
     if case in ['a', 'c']:
+        if z_dist == 'uniform':
+            u_z = rs.uniform(-2, 2, n)
+            z_base = rs.uniform(-2, 2, n)
+        else:
+            u_z = rs.normal(0, 1, n)
+            z_base = rs.normal(0, 1, n)
         u_x = rs.normal(0, 1, n)
         u_y = rs.normal(0, 1, n)
     else:
+        u_z = rs.binomial(1, 0.5, n)
+        z_base = rs.binomial(1, 0.5, n)
         u_x = rs.binomial(1, 0.5, n)
         u_y = rs.binomial(1, 0.5, n)
 
-    # Z generation
-    if model_type in ['M1', 'M2', 'M3', 'M5', 'M6', 'M7']:
-        if z_dist == 'uniform':
-            z = rs.uniform(-2, 2, n)
+    # Z for M1/M2/M3 (exogenous)
+    if model_type in ['M1', 'M2', 'M3']:
+        if z_dist == 'uniform' and case in ['a', 'c']:
+            z = u_z
         elif case in ['a', 'c']:
-            z_base = rs.normal(0, 1, n)
-            z = 0.5 * z_base + 0.5 * rs.normal(0, 1, n)
+            z = 0.5 * z_base + 0.5 * u_z
         else:
-            z_base = rs.binomial(1, 0.5, n)
             z = z_base.astype(float)
 
-    # X generation
-    if model_type in ['M1', 'M2', 'M3', 'M5', 'M6', 'M7']:
+    # X
+    if model_type in ['M1', 'M3']:
         if case in ['a', 'c']:
             x = lam_zx * z + u_x
-        else:  # b, d
+        else:
             if case == 'b':
                 z_binary = (z > np.median(z)).astype(float)
             else:
                 z_binary = z.copy()
-            if model_type == 'M6':
-                x = u_x.astype(float) if case in ['c', 'd'] else u_x
-            else:
-                p_x = 1 / (1 + np.exp(-np.clip(lam_zx * (2 * z_binary - 1) - 0.5, -100, 100)))
-                x = rs.binomial(1, p_x).astype(float)
-    else:  # M4
+            p_x = 1 / (1 + np.exp(-np.clip(lam_zx * (2 * z_binary - 1) - 0.5, -100, 100)))
+            x = rs.binomial(1, p_x).astype(float)
+    else:
         x = u_x.astype(float) if case in ['c', 'd'] else u_x
 
-    # Y generation
-    if model_type == 'M5':
-        y_eta = intercept + lam_xy * x + lam_zy * z + u_y
-    elif model_type == 'M6':
-        y_eta = intercept + lam_xy * x + u_y
-    elif model_type == 'M7':
-        y_eta = intercept + lam_xy * x + u_y
-    elif model_type in ['M1', 'M2']:
-        y_eta = intercept + lam_xy * x + lam_zy * z + u_y
-    else:  # M3, M4
-        y_eta = intercept + lam_xy * x + u_y
+    # Z for M4/M5 (after X, before Y)
+    if model_type in ['M4', 'M5']:
+        if case in ['a', 'c']:
+            z = lam_xz * x + u_z
+            z = z - np.mean(z)
+        else:
+            p_z = 1 / (1 + np.exp(-np.clip(lam_xz * (2 * x - 1) + 0.5 * z_base, -100, 100)))
+            z = rs.binomial(1, p_z).astype(float)
 
-    # Centering (matters for logit; harmless for probit since Φ is symmetric)
+    # Y
+    if model_type in ['M1', 'M2', 'M5']:
+        y_eta = intercept + lam_xy * x + lam_zy * z + u_y
+    else:
+        y_eta = intercept + lam_xy * x + u_y
     y_eta = y_eta - np.mean(y_eta)
     y_prob = link_fn(y_eta)
     y = rs.binomial(1, y_prob).astype(float)
 
+    # Z for M6/M7 (after Y)
+    if model_type == 'M6':
+        if case in ['a', 'c']:
+            z = lam_xz * x + lam_yz * y + u_z
+            z = z - np.mean(z)
+        else:
+            p_z = 1 / (1 + np.exp(-np.clip(lam_xz * (2 * x - 1) + lam_yz * (2 * y - 1) + 0.5 * z_base, -100, 100)))
+            z = rs.binomial(1, p_z).astype(float)
+    elif model_type == 'M7':
+        if case in ['a', 'c']:
+            z = lam_yz * y + u_z
+            z = z - np.mean(z)
+        else:
+            p_z = 1 / (1 + np.exp(-np.clip(lam_yz * (2 * y - 1) + 0.5 * z_base, -100, 100)))
+            z = rs.binomial(1, p_z).astype(float)
+
     return pd.DataFrame({'Y': y, 'X': x, 'Z': z})
 
 
-# ═══════════════════════════════════════════════════════════════════════════
-# PART B — True ACE Computation
-# ═══════════════════════════════════════════════════════════════════════════
-
 def true_ace_generic(model_type, params, link_fn, z_dist='normal',
                      n_mc=200000, seed=42):
-    """Monte Carlo true ACE for any link function and Z distribution."""
+    """Monte Carlo total effect for any link function and Z distribution."""
     rs = np.random.RandomState(seed)
     lam_zx = params.get('lambda_zx', 0.3)
     lam_zy = params.get('lambda_zy', 0.3)
@@ -127,58 +143,55 @@ def true_ace_generic(model_type, params, link_fn, z_dist='normal',
     lam_yz = params.get('lambda_yz', 0.3)
     intercept = params.get('intercept', 0.0)
 
-    u_y = rs.normal(0, 1, n_mc)
-    u_x = rs.normal(0, 1, n_mc)
-
-    # Z (large MC sample, case 'a' equivalent)
     if z_dist == 'uniform':
-        z = rs.uniform(-2, 2, n_mc)
+        u_z = rs.uniform(-2, 2, n_mc)
+        z_base = rs.uniform(-2, 2, n_mc)
     else:
+        u_z = rs.normal(0, 1, n_mc)
         z_base = rs.normal(0, 1, n_mc)
-        z = 0.5 * z_base + 0.5 * rs.normal(0, 1, n_mc)
+    u_x = rs.normal(0, 1, n_mc)
+    u_y = rs.normal(0, 1, n_mc)
+
+    # Z for M1/M2/M3
+    if model_type in ['M1', 'M2', 'M3']:
+        if z_dist == 'uniform':
+            z = u_z
+        else:
+            z = 0.5 * z_base + 0.5 * u_z
 
     # X
-    if model_type in ['M1', 'M2', 'M3', 'M5', 'M6', 'M7']:
+    if model_type in ['M1', 'M3']:
         x = lam_zx * z + u_x
     else:
         x = u_x
 
-    # Y_eta (same as DGP)
+    # Z for M4/M5
+    if model_type in ['M4', 'M5']:
+        z = lam_xz * x + u_z
+        z = z - np.mean(z)
+
+    # Observed Y and centering
     if model_type in ['M1', 'M2', 'M5']:
         y_eta = intercept + lam_xy * x + lam_zy * z + u_y
-    else:  # M3, M4, M6, M7
+    else:
         y_eta = intercept + lam_xy * x + u_y
-
     centering = np.mean(y_eta)
 
+    # Potential outcomes (total effect)
     if model_type == 'M5':
-        # Mediation: Z depends on X — different distributions under do(X)
-        u_z_cf = rs.normal(0, 1, n_mc)
-        if z_dist == 'uniform':
-            z1 = rs.uniform(-2, 2, n_mc)
-            z0 = rs.uniform(-2, 2, n_mc)
-        else:
-            z1 = lam_xz * 1 + u_z_cf
-            z0 = lam_xz * 0 + u_z_cf
-        u_y_cf = rs.normal(0, 1, n_mc)
-        p1 = link_fn(intercept + lam_xy*1 + lam_zy*z1 + u_y_cf - centering)
-        p0 = link_fn(intercept + lam_xy*0 + lam_zy*z0 + u_y_cf - centering)
+        z1 = lam_xz * 1 + u_z
+        z0 = lam_xz * 0 + u_z
+        eta1 = intercept + lam_xy * 1 + lam_zy * z1 + u_y - centering
+        eta0 = intercept + lam_xy * 0 + lam_zy * z0 + u_y - centering
+    elif model_type in ['M1', 'M2']:
+        eta1 = intercept + lam_xy * 1 + lam_zy * z + u_y - centering
+        eta0 = intercept + lam_xy * 0 + lam_zy * z + u_y - centering
     else:
-        if model_type in ['M1', 'M2']:
-            eta1 = intercept + lam_xy*1 + lam_zy*z + u_y - centering
-            eta0 = intercept + lam_xy*0 + lam_zy*z + u_y - centering
-        else:
-            eta1 = intercept + lam_xy*1 + u_y - centering
-            eta0 = intercept + lam_xy*0 + u_y - centering
-        p1 = link_fn(eta1)
-        p0 = link_fn(eta0)
+        eta1 = intercept + lam_xy * 1 + u_y - centering
+        eta0 = intercept + lam_xy * 0 + u_y - centering
 
-    return float(np.mean(p1 - p0))
+    return float(np.mean(link_fn(eta1) - link_fn(eta0)))
 
-
-# ═══════════════════════════════════════════════════════════════════════════
-# PART C — Meta-Feature Computation (single-covariate, same as original)
-# ═══════════════════════════════════════════════════════════════════════════
 
 def compute_meta_features(data, logit_ace_val, lpm_ace_val, unadj_ace_val):
     """Compute 16 meta-features (same formulas as meta_generate.py)."""

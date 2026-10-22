@@ -1,0 +1,6 @@
+=== START red_rule_2x2.py 2026-10-21T06:44:26Z ===
+Loaded 14040 rows
+Saved <package-root>\results\tables\red_rule_2x2.csv
+{'zone': 'RED', 'tp': 668, 'fp': 0, 'fn': 3456, 'tn': 196, 'sensitivity': 0.16197866149369544, 'specificity': 1.0, 'ppv': 1.0, 'npv': 0.05366922234392114}
+{'zone': 'GREEN', 'tp': 2619, 'fp': 196, 'fn': 1505, 'tn': 0, 'sensitivity': 0.6350630455868089, 'specificity': 0.0, 'ppv': 0.930373001776199, 'npv': 0.0}
+=== END red_rule_2x2.py rc=0 elapsed=2s 2026-10-21T06:44:29Z ===

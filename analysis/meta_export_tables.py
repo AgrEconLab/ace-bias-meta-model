@@ -26,12 +26,14 @@ SEED = 20240625
 
 FEATURES = [
     'n', 'y_mean', 'x_var',
-    'logit_ace', 'lpm_ace', 'logit_lpm_diff',
+    'logit_ace', 'logit_lpm_diff',
     'unadj_ace', 'adj_unadj_diff',
     'z_coef_mag', 'z_x_coef_mag', 'z_x_r2',
     'y_pred_min', 'y_pred_max', 'y_pred_range',
     'lpm_x_coef', 'y_model_r2',
 ]
+
+TREE_FEATURES = ['lpm_x_coef', 'n']
 
 RESULTS_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), '../results')
 TABLES_DIR = os.path.join(RESULTS_DIR, 'tables')
@@ -159,6 +161,18 @@ def export_table2(df):
 
 # ── Table 3: Diagnostic Decision Rule ──
 
+def _zone_for_conditions(conditions):
+    cond = ' & '.join(conditions)
+    if 'lpm_x_coef <= -0.024' in cond:
+        return 'RED'
+    if ('lpm_x_coef > -0.002' in cond and 'lpm_x_coef > -0.024' in cond
+            and 'lpm_x_coef <= 0.102' in cond):
+        return 'GREEN'
+    if 'n <= 625' in cond:
+        return 'YELLOW-B'
+    return 'YELLOW-A'
+
+
 def export_table3(df):
     """Decision tree rule zones from training on M1/M5, applied to M6/M7."""
     print("\n" + "=" * 60)
@@ -167,11 +181,15 @@ def export_table3(df):
 
     train = df[df['model_type'].isin(['M1', 'M5'])]
     test = df[df['model_type'].isin(['M6', 'M7'])]
-    X_train, y_train = prepare(train)
-    X_test_full, y_test_full = prepare(test)
+    X_train, y_train = prepare(train, TREE_FEATURES)
+    X_test_full, y_test_full = prepare(test, TREE_FEATURES)
 
     dt = DecisionTreeRegressor(max_depth=3, min_samples_leaf=10, random_state=SEED)
     dt.fit(X_train, y_train)
+    from sklearn.metrics import r2_score as _r2, mean_absolute_error as _mae
+    _pred = dt.predict(X_test_full)
+    print(f"  Two-input tree held-out R2={_r2(y_test_full, _pred):.4f} "
+          f"MAE={_mae(y_test_full, _pred):.2f}")
 
     # Assign each test row to a leaf (zone)
     leaf_ids = dt.apply(X_test_full)
@@ -179,7 +197,7 @@ def export_table3(df):
     test_copy['leaf'] = leaf_ids
 
     # Extract tree structure as text for reference
-    rule_text = export_text(dt, feature_names=FEATURES, show_weights=True, decimals=3)
+    rule_text = export_text(dt, feature_names=TREE_FEATURES, show_weights=True, decimals=3)
 
     # Build per-zone summary from the tree splits
     # The tree trained on M1/M5 has these splits: lpm_x_coef, n, logit_ace
@@ -200,6 +218,7 @@ def export_table3(df):
             if len(leaf_data) > 0:
                 zone_info[node_id] = {
                     'conditions': conditions,
+                    'zone': _zone_for_conditions(conditions),
                     'n': len(leaf_data),
                     'median_bias': round(leaf_data.median(), 1),
                     'q25': round(leaf_data.quantile(0.25), 1),
@@ -207,29 +226,33 @@ def export_table3(df):
                     'mean_bias': round(leaf_data.mean(), 1),
                 }
         else:
-            feat_name = FEATURES[feature[node_id]]
+            feat_name = TREE_FEATURES[feature[node_id]]
             thr = threshold[node_id]
             # Left child: feature <= threshold
             stack.append((left[node_id], conditions + [f"{feat_name} <= {thr:.3f}"]))
             # Right child: feature > threshold
             stack.append((right[node_id], conditions + [f"{feat_name} > {thr:.3f}"]))
 
-    # Map to RED/GREEN/YELLOW zones
-    zone_map = {}
+    # Map leaves to zones, then aggregate ALL test rows in each zone.
+    zone_leaves = {}
     for leaf_id, info in zone_info.items():
-        cond_str = ' & '.join(info['conditions'])
-        if 'lpm_x_coef <= -0.026' in cond_str:
-            zone = 'RED'
-        elif ('logit_ace >' in cond_str and 'lpm_x_coef > -0.026' in cond_str
-              and 'n > 625' not in cond_str and 'n <= 625' not in cond_str):
-            zone = 'GREEN'
-        elif 'n > 625' in cond_str and 'lpm_x_coef > 0.102' not in cond_str:
-            zone = 'GREEN'  # fallback: n>625 without strong lpm
-        elif 'n <= 625' in cond_str:
-            zone = 'YELLOW-B'
-        else:
-            zone = 'YELLOW-A'
-        zone_map[zone] = info
+        zone_leaves.setdefault(info['zone'], []).append(leaf_id)
+
+    zone_map = {}
+    for zone, leaf_ids in zone_leaves.items():
+        leaf_data = test_copy.loc[test_copy['leaf'].isin(leaf_ids), 'abs_bias_pct']
+        condition_parts = []
+        for lid in leaf_ids:
+            condition_parts.append('(' + ' & '.join(zone_info[lid]['conditions']) + ')')
+        zone_map[zone] = {
+            'conditions': ' | '.join(condition_parts),
+            'n': int(len(leaf_data)),
+            'median_bias': round(float(leaf_data.median()), 1),
+            'q25': round(float(leaf_data.quantile(0.25)), 1),
+            'q75': round(float(leaf_data.quantile(0.75)), 1),
+            'mean_bias': round(float(leaf_data.mean()), 1),
+            'leaves': leaf_ids,
+        }
 
     # Build table rows in manuscript order
     table_rows = []
@@ -246,13 +269,13 @@ def export_table3(df):
 
         # Human-readable condition
         if zone == 'RED':
-            condition = 'lpm_x_coef <= -0.026'
+            condition = 'lpm_x_coef <= -0.024'
         elif zone == 'GREEN':
-            condition = 'lpm_x_coef in (-0.026, 0.102], logit_ace > -0.002'
+            condition = 'lpm_x_coef in (-0.002, 0.102]'
         elif zone == 'YELLOW-A':
-            condition = 'lpm_x_coef > 0.102, n > 625'
+            condition = 'lpm_x_coef in (-0.024, -0.002] | (lpm_x_coef > 0.102 & n > 625)'
         elif zone == 'YELLOW-B':
-            condition = 'lpm_x_coef > -0.026, n <= 625'
+            condition = 'lpm_x_coef > 0.102, n <= 625'
 
         table_rows.append({
             'zone': zone,

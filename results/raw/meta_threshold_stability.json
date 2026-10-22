@@ -1,0 +1,44 @@
+{
+  "B": 500,
+  "n_train_configs": 324,
+  "threshold_summary": {
+    "lpm_x_coef": {
+      "count": 3216,
+      "q025": -0.13344837725162506,
+      "median": -0.02951843198388815,
+      "q975": 0.17108286451548338
+    },
+    "n": {
+      "count": 252,
+      "q025": 625.0,
+      "median": 625.0,
+      "q975": 3000.0
+    }
+  },
+  "feature_usage_by_depth": {
+    "0": {
+      "lpm_x_coef": 500
+    },
+    "1": {
+      "lpm_x_coef": 929,
+      "n": 71
+    },
+    "2": {
+      "lpm_x_coef": 1787,
+      "n": 181
+    }
+  },
+  "root_stability": {
+    "point_root_feature": "lpm_x_coef",
+    "point_root_threshold": -0.024285675957798958,
+    "same_feature_fraction": 1.0,
+    "within_0.01_fraction": 0.932,
+    "within_0.02_fraction": 1.0
+  },
+  "n_threshold": {
+    "count": 252,
+    "q025": 625.0,
+    "median": 625.0,
+    "q975": 3000.0
+  }
+}

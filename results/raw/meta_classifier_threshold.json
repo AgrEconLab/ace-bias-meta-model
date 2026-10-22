@@ -1,0 +1,161 @@
+{
+  "meta": {
+    "seed": 20240625,
+    "features": [
+      "n",
+      "y_mean",
+      "x_var",
+      "logit_ace",
+      "logit_lpm_diff",
+      "unadj_ace",
+      "adj_unadj_diff",
+      "z_coef_mag",
+      "z_x_coef_mag",
+      "z_x_r2",
+      "y_pred_min",
+      "y_pred_max",
+      "y_pred_range",
+      "lpm_x_coef",
+      "y_model_r2"
+    ],
+    "thresholds": [
+      5,
+      25,
+      50
+    ]
+  },
+  "regimes": {
+    "primary_heldout": {
+      "n_train": 6480,
+      "n_test": 4320,
+      "results": [
+        {
+          "threshold": 5,
+          "n_train": 6480,
+          "n_train_positive": 6083,
+          "positive_share_train": 0.9387345679012346,
+          "n_test": 4320,
+          "n_test_positive": 4124,
+          "positive_share_test": 0.9546296296296296,
+          "accuracy": 0.9546296296296296,
+          "precision": 0.9546296296296296,
+          "recall": 1.0,
+          "f1": 0.9767882520132638,
+          "kappa": 0.0,
+          "balanced_accuracy": 0.5,
+          "auc": 0.7392218769175953,
+          "tn": 0,
+          "fp": 196,
+          "fn": 0,
+          "tp": 4124
+        },
+        {
+          "threshold": 25,
+          "n_train": 6480,
+          "n_train_positive": 4609,
+          "positive_share_train": 0.7112654320987655,
+          "n_test": 4320,
+          "n_test_positive": 3420,
+          "positive_share_test": 0.7916666666666666,
+          "accuracy": 0.8159722222222222,
+          "precision": 0.8254401190181007,
+          "recall": 0.973391812865497,
+          "f1": 0.8933315443445592,
+          "kappa": 0.25521117963931617,
+          "balanced_accuracy": 0.5955847953216374,
+          "auc": 0.7819207277452891,
+          "tn": 196,
+          "fp": 704,
+          "fn": 91,
+          "tp": 3329
+        },
+        {
+          "threshold": 50,
+          "n_train": 6480,
+          "n_train_positive": 3336,
+          "positive_share_train": 0.5148148148148148,
+          "n_test": 4320,
+          "n_test_positive": 2753,
+          "positive_share_test": 0.6372685185185185,
+          "accuracy": 0.7194444444444444,
+          "precision": 0.778460426454644,
+          "recall": 0.7824191790773701,
+          "f1": 0.7804347826086957,
+          "kappa": 0.3919801637337368,
+          "balanced_accuracy": 0.6956129079815696,
+          "auc": 0.7868415751592914,
+          "tn": 954,
+          "fp": 613,
+          "fn": 599,
+          "tp": 2154
+        }
+      ]
+    },
+    "random_stratified": {
+      "n_train": 11232,
+      "n_test": 2808,
+      "results": [
+        {
+          "threshold": 5,
+          "n_train": 11232,
+          "n_train_positive": 10546,
+          "positive_share_train": 0.9389245014245015,
+          "n_test": 2808,
+          "n_test_positive": 2644,
+          "positive_share_test": 0.9415954415954416,
+          "accuracy": 0.9415954415954416,
+          "precision": 0.9415954415954416,
+          "recall": 1.0,
+          "f1": 0.9699192956713133,
+          "kappa": 0.0,
+          "balanced_accuracy": 0.5,
+          "auc": 0.7222565587985683,
+          "tn": 0,
+          "fp": 164,
+          "fn": 0,
+          "tp": 2644
+        },
+        {
+          "threshold": 25,
+          "n_train": 11232,
+          "n_train_positive": 8239,
+          "positive_share_train": 0.7335292022792023,
+          "n_test": 2808,
+          "n_test_positive": 2037,
+          "positive_share_test": 0.7254273504273504,
+          "accuracy": 0.7638888888888888,
+          "precision": 0.777016129032258,
+          "recall": 0.9459990181639666,
+          "f1": 0.8532211644897055,
+          "kappa": 0.2784697095126919,
+          "balanced_accuracy": 0.6143743469548757,
+          "auc": 0.7640288896656982,
+          "tn": 218,
+          "fp": 553,
+          "fn": 110,
+          "tp": 1927
+        },
+        {
+          "threshold": 50,
+          "n_train": 11232,
+          "n_train_positive": 6237,
+          "positive_share_train": 0.5552884615384616,
+          "n_test": 2808,
+          "n_test_positive": 1525,
+          "positive_share_test": 0.5430911680911681,
+          "accuracy": 0.7019230769230769,
+          "precision": 0.7092457420924574,
+          "recall": 0.7645901639344262,
+          "f1": 0.7358788261281162,
+          "kappa": 0.3949322821412683,
+          "balanced_accuracy": 0.6960129307591072,
+          "auc": 0.7813832845661424,
+          "tn": 805,
+          "fp": 478,
+          "fn": 359,
+          "tp": 1166
+        }
+      ]
+    }
+  }
+}

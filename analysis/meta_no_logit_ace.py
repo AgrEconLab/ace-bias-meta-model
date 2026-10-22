@@ -19,7 +19,7 @@ SEED = 20240625
 
 FULL_FEATURES = [
     'n', 'y_mean', 'x_var',
-    'logit_ace', 'lpm_ace', 'logit_lpm_diff',
+    'logit_ace', 'logit_lpm_diff',
     'unadj_ace', 'adj_unadj_diff',
     'z_coef_mag', 'z_x_coef_mag', 'z_x_r2',
     'y_pred_min', 'y_pred_max', 'y_pred_range',
@@ -29,7 +29,7 @@ FULL_FEATURES = [
 # Condition A: drop logit_ace only
 NO_LOGIT_ACE = [f for f in FULL_FEATURES if f != 'logit_ace']
 # Condition B: drop both logit_ace and lpm_ace (the two ACE estimates)
-NO_ACE_ESTIMATES = [f for f in FULL_FEATURES if f not in ('logit_ace', 'lpm_ace')]
+NO_ACE_ESTIMATES = [f for f in FULL_FEATURES if f not in ('logit_ace', 'lpm_x_coef')]
 
 RF_PARAMS = dict(n_estimators=1000, max_depth=10, min_samples_leaf=5,
                  n_jobs=-1, random_state=SEED)
@@ -150,9 +150,9 @@ def run():
 
     # ── Feature sets ──
     feature_sets = [
-        ('Full (16 features)', FULL_FEATURES),
-        ('No logit_ace (15 features)', NO_LOGIT_ACE),
-        ('No ACE estimates (14 features)', NO_ACE_ESTIMATES),
+        ('Full (15 features)', FULL_FEATURES),
+        ('No logit_ace (14 features)', NO_LOGIT_ACE),
+        ('No ACE estimates (13 features)', NO_ACE_ESTIMATES),
     ]
 
     all_results = []

@@ -22,7 +22,7 @@ SEED = 20240625
 
 FEATURES = [
     'n', 'y_mean', 'x_var',
-    'logit_ace', 'lpm_ace', 'logit_lpm_diff',
+    'logit_ace', 'logit_lpm_diff',
     'unadj_ace', 'adj_unadj_diff',
     'z_coef_mag', 'z_x_coef_mag', 'z_x_r2',
     'y_pred_min', 'y_pred_max', 'y_pred_range',
@@ -76,6 +76,7 @@ def bootstrap_ci(X_train, y_train, X_test, y_test, n_bootstrap=100):
     base_rmse = np.sqrt(mean_squared_error(y_test, y_pred_base))
 
     n_train = X_train.shape[0]
+    np.random.seed(SEED)
     t0 = time.time()
     for i in range(n_bootstrap):
         idx = np.random.randint(0, n_train, size=n_train)

@@ -71,127 +71,58 @@ def _generate_case_data(n: int, case: str, model_params: Dict) -> pd.DataFrame:
         u_y = np.random.binomial(1, 0.5, n)
         z_base = np.random.binomial(1, 0.5, n)  # Z initial
 
-    # ── Generate Z based on model structure ──
-    if model_type == 'M1':
-        # Confounding: Z causes both X and Y, Z is exogenous
+    # ── Z for M1/M2/M3 (exogenous) ──
+    if model_type in ['M1', 'M2', 'M3']:
         if case in ['a', 'c']:
             z = 0.5 * z_base + 0.5 * u_z
         else:  # 'b', 'd'
             z = z_base.astype(float)
-
-    elif model_type == 'M2':
-        # Outcome predictor: Z -> Y only
-        if case in ['a', 'c']:
-            z = 0.5 * z_base + 0.5 * u_z
-        else:  # 'b', 'd'
-            z = z_base.astype(float)
-
-    elif model_type == 'M3':
-        # Exposure predictor: Z -> X only
-        if case in ['a', 'c']:
-            z = 0.5 * z_base + 0.5 * u_z
-        else:
-            z = z_base.astype(float)
-
-    elif model_type == 'M4':
-        # Exposure descendant: X -> Z
-        # Need X first, then Z = f(X). We'll generate X from u_x initially
-        if case in ['a', 'c']:
-            x_init = u_x  # X from disturbance, will generate properly later
-            z = 0.5 * (lam_xz * x_init) + 0.5 * u_z
-        else:
-            # For Bernoulli, Z depends on X
-            x_init = u_x
-            p_z = _logit_inv(lam_xz * (2 * x_init - 1) + 0.5 * z_base)
-            z = np.random.binomial(1, p_z).astype(float)
-
-    elif model_type == 'M5':
-        # Mediation: X -> Z -> Y
-        if case in ['a', 'c']:
-            x_init = u_x
-            z = 0.5 * (lam_xz * x_init + u_z)
-        else:
-            x_init = u_x
-            p_z = _logit_inv(lam_xz * (2 * x_init - 1) + 0.5 * z_base)
-            z = np.random.binomial(1, p_z).astype(float)
-
-    elif model_type == 'M6':
-        # Collider: X -> Z <- Y
-        if case in ['a', 'c']:
-            z = 0.5 * (lam_xz * u_x + u_z)
-        else:
-            z = z_base.astype(float)  # Will be updated after Y generation
-
-    elif model_type == 'M7':
-        # Outcome descendant: Y -> Z
-        if case in ['a', 'c']:
-            z = 0.5 * u_z + 0.5 * z_base
-        else:
-            z = z_base.astype(float)
+    # M4-M7: Z is generated after X (M4/M5) or after Y (M6/M7).
 
     # ── Generate X ──
-    if model_type in ['M1', 'M2', 'M3', 'M5', 'M6', 'M7']:
+    if model_type in ['M1', 'M3']:
         if case in ['a', 'c']:
-            # Linear influence Z -> X
-            x_linear = lam_zx * z + u_x
-            if case == 'a':
-                x = x_linear
-            else:  # 'c': standardize for Bernoulli outcome relation
-                x = x_linear
-        else:  # 'b', 'd': nonlinear Bernoulli influence Z -> X
+            x = lam_zx * z + u_x
+        else:  # 'b', 'd'
             if case == 'b':
                 z_binary = (z > np.median(z)).astype(float)
-            else:  # 'd'
-                z_binary = z.copy()
-
-            if model_type == 'M6':
-                # Collider: X is exogenous
-                x = u_x if case in ['a', 'c'] else u_x.astype(float)
             else:
-                p_x = _logit_inv(lam_zx * (2 * z_binary - 1) - 0.5)
-                x = np.random.binomial(1, p_x).astype(float)
+                z_binary = z.copy()
+            p_x = _logit_inv(lam_zx * (2 * z_binary - 1) - 0.5)
+            x = np.random.binomial(1, p_x).astype(float)
     else:
-        # M4: X is exogenous
+        # M2, M4, M5, M6, M7: X is exogenous (no structural Z -> X edge)
+        x = u_x.astype(float) if case in ['c', 'd'] else u_x
+
+    # ── Generate Z for M4/M5 after X, before Y ──
+    if model_type in ['M4', 'M5']:
         if case in ['a', 'c']:
-            x = u_x
-        else:
-            x = u_x.astype(float)
+            z = lam_xz * x + u_z
+            z = z - np.mean(z)
+        else:  # 'b', 'd'
+            p_z = _logit_inv(lam_xz * (2 * x - 1) + 0.5 * z_base)
+            z = np.random.binomial(1, p_z).astype(float)
 
     # ── Generate Y ──
-    if model_type == 'M5':
-        # Mediation: Y depends on X and Z (Z is mediator)
+    if model_type in ['M1', 'M2', 'M5']:
         y_eta = intercept + lam_xy * x + lam_zy * z + u_y
-    elif model_type == 'M6':
-        # Collider: Y is a cause of Z but not affected by Z
+    else:
+        # M3, M4, M6, M7: Y depends on X only
         y_eta = intercept + lam_xy * x + u_y
-    elif model_type == 'M7':
-        # Outcome descendant: Y is cause of Z
-        y_eta = intercept + lam_xy * x + u_y
-    elif model_type in ['M1', 'M2', 'M3', 'M4']:
-        if model_type == 'M1':
-            # Confounding: Y depends on X and Z
-            y_eta = intercept + lam_xy * x + lam_zy * z + u_y
-        elif model_type == 'M2':
-            # Outcome predictor: Y depends on X and Z
-            y_eta = intercept + lam_xy * x + lam_zy * z + u_y
-        else:
-            # M3, M4: Y depends on X only
-            y_eta = intercept + lam_xy * x + u_y
 
     # Standardize eta for consistent treatment
     y_eta = y_eta - np.mean(y_eta)
     y_prob = _logit_inv(y_eta)
     y = np.random.binomial(1, y_prob).astype(float)
 
-    # ── Post-generation adjustments for specific models ──
+    # ── Generate Z for M6/M7 after Y ──
     if model_type == 'M6':
         # Collider: Z is a function of BOTH X and Y
         if case in ['a', 'c']:
             z = lam_xz * x + lam_yz * y + u_z
-            z = z - np.mean(z)  # Standardize
+            z = z - np.mean(z)
         else:  # 'b', 'd'
             p_z = _logit_inv(lam_xz * (2 * x - 1) + lam_yz * (2 * y - 1) + 0.5 * z_base)
-            # z is already drawn from z_base, create new one
             z = np.random.binomial(1, p_z).astype(float)
 
     elif model_type == 'M7':
@@ -199,26 +130,8 @@ def _generate_case_data(n: int, case: str, model_params: Dict) -> pd.DataFrame:
         if case in ['a', 'c']:
             z = lam_yz * y + u_z
             z = z - np.mean(z)
-        else:
+        else:  # 'b', 'd'
             p_z = _logit_inv(lam_yz * (2 * y - 1) + 0.5 * z_base)
-            z = np.random.binomial(1, p_z).astype(float)
-
-    elif model_type == 'M4':
-        # Exposure descendant: Z depends on X (regenerate with correct X)
-        if case in ['a', 'c']:
-            z = lam_xz * x + u_z
-            z = z - np.mean(z)
-        else:
-            p_z = _logit_inv(lam_xz * (2 * x - 1) + 0.5 * z_base)
-            z = np.random.binomial(1, p_z).astype(float)
-
-    elif model_type == 'M5':
-        # Mediation: regenerate Z with correct X
-        if case in ['a', 'c']:
-            z = lam_xz * x + u_z
-            z = z - np.mean(z)
-        else:
-            p_z = _logit_inv(lam_xz * (2 * x - 1) + 0.5 * z_base)
             z = np.random.binomial(1, p_z).astype(float)
 
     # ── Prepare output ──
@@ -375,25 +288,18 @@ def get_true_ace_case(model_type: str, case: str = 'a',
                        params: Optional[Dict] = None,
                        n_mc: int = 200000, seed: int = 42) -> float:
     """
-    Compute case-specific true ACE via large-sample Monte Carlo.
+    Compute the true TOTAL effect via Monte Carlo integration.
 
-    Unlike get_true_ace (which uses normal approximations only valid for case a),
-    this function uses the EXACT DGP for each case, including:
-      - Case-specific error distributions (normal vs Bernoulli)
-      - Case-specific X generation (linear vs Bernoulli logit)
-      - The y_eta centering step that shifts the effective intercept
-      - Post-generation Z adjustments (M4, M5, M6, M7)
-
-    The true ACE is computed by:
-      1. Draw a large sample from the case-specific DGP
-      2. Compute the sample centering of y_eta (as done in the actual DGP)
-      3. Apply g-computation using the TRUE DGP parameters
-         P(Y=1|do(X=1)) = mean(Λ(intercept + λ_xy*1 + λ_zy*Z + u_y - centering))
-         P(Y=1|do(X=0)) = mean(Λ(intercept + λ_xy*0 + λ_zy*Z + u_y - centering))
-      4. ACE = difference
+    Generation order matches the corrected _generate_case_data (2026-10-20):
+      M1: Z exogenous -> X=f(Z,u_x); Y=f(X,Z,u_y)
+      M2: Z exogenous, X exogenous; Y=f(X,Z,u_y)
+      M3: Z exogenous -> X=f(Z,u_x); Y=f(X,u_y)
+      M4: X exogenous -> Z=f(X,u_z); Y=f(X,u_y)
+      M5: X exogenous -> Z=f(X,u_z); Y=f(X,Z,u_y)
+      M6: X exogenous -> Y=f(X,u_y); Z=f(X,Y,u_z)
+      M7: X exogenous -> Y=f(X,u_y); Z=f(Y,u_z)
     """
     set_seed(seed)
-
     model_params = {
         'model_type': model_type,
         'lambda_zx': CONFIG.default_lambda_zx,
@@ -405,17 +311,15 @@ def get_true_ace_case(model_type: str, case: str = 'a',
     }
     if params:
         model_params.update(params)
-
     lam_zx = model_params['lambda_zx']
     lam_zy = model_params['lambda_zy']
     lam_xy = model_params['lambda_xy']
     lam_xz = model_params['lambda_xz']
     lam_yz = model_params['lambda_yz']
     intercept = model_params['intercept']
-
     n = n_mc
 
-    # ── Step 1: Generate disturbances and Z ──
+    # Disturbances
     if case in ['a', 'b']:
         u_z = np.random.normal(0, 1, n)
         u_x = np.random.normal(0, 1, n)
@@ -427,48 +331,17 @@ def get_true_ace_case(model_type: str, case: str = 'a',
         u_y = np.random.binomial(1, 0.5, n)
         z_base = np.random.binomial(1, 0.5, n)
 
-    # ── Step 2: Generate Z ──
-    # (following the same logic as _generate_case_data)
-    if model_type in ['M1', 'M2']:
+    # Z for M1/M2/M3 (exogenous)
+    if model_type in ['M1', 'M2', 'M3']:
         if case in ['a', 'c']:
             z = 0.5 * z_base + 0.5 * u_z
-        else:
-            z = z_base.astype(float)
-    elif model_type == 'M3':
-        if case in ['a', 'c']:
-            z = 0.5 * z_base + 0.5 * u_z
-        else:
-            z = z_base.astype(float)
-    elif model_type == 'M4':
-        if case in ['a', 'c']:
-            z_init = 0.5 * (lam_xz * u_x) + 0.5 * u_z
-        else:
-            p_z_init = _logit_inv(lam_xz * (2 * u_x - 1) + 0.5 * z_base)
-            z_init = np.random.binomial(1, p_z_init).astype(float)
-        z = z_init  # placeholder, will be regenerated after X
-    elif model_type == 'M5':
-        if case in ['a', 'c']:
-            z_init = 0.5 * (lam_xz * u_x + u_z)
-        else:
-            p_z_init = _logit_inv(lam_xz * (2 * u_x - 1) + 0.5 * z_base)
-            z_init = np.random.binomial(1, p_z_init).astype(float)
-        z = z_init
-    elif model_type == 'M6':
-        if case in ['a', 'c']:
-            z = 0.5 * (lam_xz * u_x + u_z)
-        else:
-            z = z_base.astype(float)  # placeholder
-    elif model_type == 'M7':
-        if case in ['a', 'c']:
-            z = 0.5 * u_z + 0.5 * z_base
         else:
             z = z_base.astype(float)
 
-    # ── Step 3: Generate X ──
-    if model_type in ['M1', 'M2', 'M3', 'M5', 'M6', 'M7']:
+    # X
+    if model_type in ['M1', 'M3']:
         if case in ['a', 'c']:
-            x_lin = lam_zx * z + u_x
-            x = x_lin
+            x = lam_zx * z + u_x
         else:
             if case == 'b':
                 z_binary = (z > np.median(z)).astype(float)
@@ -476,52 +349,99 @@ def get_true_ace_case(model_type: str, case: str = 'a',
                 z_binary = z.copy()
             p_x = _logit_inv(lam_zx * (2 * z_binary - 1) - 0.5)
             x = np.random.binomial(1, p_x).astype(float)
-    else:  # M4
-        x = u_x if case in ['a', 'c'] else u_x.astype(float)
+    else:
+        x = u_x.astype(float) if case in ['c', 'd'] else u_x
 
-    # ── Step 4: Compute y_eta and centering ──
-    if model_type == 'M5':
+    # Z for M4/M5 (after X, before Y)
+    if model_type in ['M4', 'M5']:
+        if case in ['a', 'c']:
+            z = lam_xz * x + u_z
+            z = z - np.mean(z)
+        else:
+            p_z = _logit_inv(lam_xz * (2 * x - 1) + 0.5 * z_base)
+            z = np.random.binomial(1, p_z).astype(float)
+
+    # Observed Y (for the centering factor)
+    if model_type in ['M1', 'M2', 'M5']:
         y_eta = intercept + lam_xy * x + lam_zy * z + u_y
-    elif model_type in ['M6', 'M7']:
+    else:
         y_eta = intercept + lam_xy * x + u_y
-    elif model_type in ['M1', 'M2', 'M3', 'M4']:
-        if model_type in ['M1', 'M2']:
-            y_eta = intercept + lam_xy * x + lam_zy * z + u_y
-        else:  # M3, M4
-            y_eta = intercept + lam_xy * x + u_y
-
-    # Centering is the key step get_true_ace misses
     centering = np.mean(y_eta)
 
-    # ── Step 5: Compute potential outcomes with centering ──
+    # Total-effect potential outcomes
     if model_type == 'M5':
-        # Mediation: Z depends on X, so potential outcomes have different Z distributions
-        z1 = lam_xz * 1 + u_z if case in ['a', 'c'] else \
-             np.random.binomial(1, _logit_inv(lam_xz * (2*1-1) + 0.5*z_base), n).astype(float)
-        z0 = lam_xz * 0 + u_z if case in ['a', 'c'] else \
-             np.random.binomial(1, _logit_inv(lam_xz * (2*0-1) + 0.5*z_base), n).astype(float)
-
-        # Re-compute u_y for counterfactuals (drawn fresh)
-        if case in ['c', 'd']:
-            u_y_cf = np.random.binomial(1, 0.5, n)
+        if case in ['a', 'c']:
+            z1 = lam_xz * 1 + u_z
+            z0 = lam_xz * 0 + u_z
         else:
-            u_y_cf = np.random.normal(0, 1, n)
-
-        p_y1 = _logit_inv(intercept + lam_xy * 1 + lam_zy * z1 + u_y_cf - centering)
-        p_y0 = _logit_inv(intercept + lam_xy * 0 + lam_zy * z0 + u_y_cf - centering)
+            z1 = np.random.binomial(1, _logit_inv(lam_xz * (2 * 1 - 1) + 0.5 * z_base), n).astype(float)
+            z0 = np.random.binomial(1, _logit_inv(lam_xz * (2 * 0 - 1) + 0.5 * z_base), n).astype(float)
+        eta1 = intercept + lam_xy * 1 + lam_zy * z1 + u_y - centering
+        eta0 = intercept + lam_xy * 0 + lam_zy * z0 + u_y - centering
+    elif model_type in ['M1', 'M2']:
+        eta1 = intercept + lam_xy * 1 + lam_zy * z + u_y - centering
+        eta0 = intercept + lam_xy * 0 + lam_zy * z + u_y - centering
     else:
-        if model_type in ['M1', 'M2']:
-            eta1 = intercept + lam_xy * 1 + lam_zy * z + u_y - centering
-            eta0 = intercept + lam_xy * 0 + lam_zy * z + u_y - centering
-        elif model_type in ['M3', 'M4', 'M6', 'M7']:
-            # Y does NOT depend on Z for these models
-            eta1 = intercept + lam_xy * 1 + u_y - centering
-            eta0 = intercept + lam_xy * 0 + u_y - centering
-        p_y1 = _logit_inv(eta1)
-        p_y0 = _logit_inv(eta0)
+        eta1 = intercept + lam_xy * 1 + u_y - centering
+        eta0 = intercept + lam_xy * 0 + u_y - centering
+    return float(np.mean(_logit_inv(eta1) - _logit_inv(eta0)))
 
-    ace = float(np.mean(p_y1 - p_y0))
-    return ace
+
+def get_true_direct_effect_case(model_type: str, case: str = 'a',
+                                params: Optional[Dict] = None,
+                                n_mc: int = 200000, seed: int = 42) -> float:
+    """
+    Compute the direct effect at the observed Z distribution.
+
+    For M5 this is the target of the adjusted estimator (marginal standardization
+    over the observed mediator distribution). For all other models Z is not on
+    the X -> Y causal path (or Y is independent of Z), so direct == total.
+    """
+    if model_type != 'M5':
+        return get_true_ace_case(model_type, case, params, n_mc, seed)
+
+    set_seed(seed)
+    model_params = {
+        'model_type': model_type,
+        'lambda_zx': CONFIG.default_lambda_zx,
+        'lambda_zy': CONFIG.default_lambda_zy,
+        'lambda_xy': CONFIG.default_lambda_xy,
+        'lambda_xz': CONFIG.default_lambda_xz,
+        'lambda_yz': CONFIG.default_lambda_yz,
+        'intercept': 0.0,
+    }
+    if params:
+        model_params.update(params)
+    lam_zy = model_params['lambda_zy']
+    lam_xy = model_params['lambda_xy']
+    lam_xz = model_params['lambda_xz']
+    intercept = model_params['intercept']
+    n = n_mc
+
+    if case in ['a', 'b']:
+        u_z = np.random.normal(0, 1, n)
+        u_x = np.random.normal(0, 1, n)
+        u_y = np.random.normal(0, 1, n)
+        z_base = np.random.normal(0, 1, n)
+    else:
+        u_z = np.random.binomial(1, 0.5, n)
+        u_x = np.random.binomial(1, 0.5, n)
+        u_y = np.random.binomial(1, 0.5, n)
+        z_base = np.random.binomial(1, 0.5, n)
+
+    x = u_x.astype(float) if case in ['c', 'd'] else u_x
+    if case in ['a', 'c']:
+        z = lam_xz * x + u_z
+        z = z - np.mean(z)
+    else:
+        p_z = _logit_inv(lam_xz * (2 * x - 1) + 0.5 * z_base)
+        z = np.random.binomial(1, p_z).astype(float)
+
+    y_eta = intercept + lam_xy * x + lam_zy * z + u_y
+    centering = np.mean(y_eta)
+    eta1 = intercept + lam_xy * 1 + lam_zy * z + u_y - centering
+    eta0 = intercept + lam_xy * 0 + lam_zy * z + u_y - centering
+    return float(np.mean(_logit_inv(eta1) - _logit_inv(eta0)))
 
 
 # ─── Model Registry ──────────────────────────────────────────────────────────

@@ -1,13 +1,17 @@
 """
-Continuous outcome extension: test meta-model on linear Y (continuous).
+Linear-outcome extension: test meta-model on a linear DGP
+(continuous in case a; a linear probability outcome in case d).
 
 Key questions:
-  1. Within-regime: How well does RF predict bias in continuous-Y data?
-  2. Bias decomposition: How much of binary-Y bias is non-collapsibility vs. structural?
-  3. Cross-regime transfer: Does binary-Y-trained RF predict continuous-Y bias?
+  1. Within-regime: How well does RF predict error in linear-Y data?
+  2. Descriptive comparison: How do error magnitudes differ between the binary
+     and linear outcome regimes?
+  3. Cross-regime transfer: Does binary-Y-trained RF predict linear-Y error?
 
-For continuous Y (linear DGP), non-collapsibility is absent, so any remaining
-bias is purely structural (confounding/mediation/collider/selection).
+The linear-outcome extension changes the link, estimator, error
+distribution, and target simultaneously.  The comparison is therefore
+descriptive; it is not a decomposition of binary-Y error into structural and
+non-collapsibility components.
 
 Generates 7 DAGs x 2 cases x 3 lambda_xy x path params x 3 N x 20 iters
 = 14,040 rows (same grid as original training data).
@@ -35,7 +39,7 @@ CASES = ['a', 'd']
 
 FEATURES = [
     'n', 'y_mean', 'x_var',
-    'logit_ace', 'lpm_ace', 'logit_lpm_diff',
+    'logit_ace', 'logit_lpm_diff',
     'unadj_ace', 'adj_unadj_diff',
     'z_coef_mag', 'z_x_coef_mag', 'z_x_r2',
     'y_pred_min', 'y_pred_max', 'y_pred_range',
@@ -54,11 +58,11 @@ MODEL_VARY_PARAMS = {
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PART A — Continuous Y DGP
+# PART A — Linear Y DGP
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def generate_linear_data(model_type, case, n, params, rs=None):
-    """Generate data with continuous Y (linear DGP, no logit link)."""
+    """Generate data with linear Y (linear DGP, no logit link)."""
     if rs is None:
         rs = np.random.RandomState(SEED)
 
@@ -81,41 +85,15 @@ def generate_linear_data(model_type, case, n, params, rs=None):
         u_y = rs.binomial(1, 0.5, n)
         z_base = rs.binomial(1, 0.5, n)
 
-    # Z generation (same as dgp.py)
+    # Z for M1/M2/M3 (exogenous)
     if model_type in ['M1', 'M2', 'M3']:
         if case in ['a', 'c']:
             z = 0.5 * z_base + 0.5 * u_z
         else:
             z = z_base.astype(float)
-    elif model_type == 'M4':
-        x_init = u_x
-        if case in ['a', 'c']:
-            z_init = 0.5 * (lam_xz * x_init) + 0.5 * u_z
-        else:
-            p_z = 1 / (1 + np.exp(-np.clip(lam_xz * (2 * x_init - 1) + 0.5 * z_base, -100, 100)))
-            z_init = rs.binomial(1, p_z).astype(float)
-        z = z_init
-    elif model_type == 'M5':
-        x_init = u_x
-        if case in ['a', 'c']:
-            z_init = 0.5 * (lam_xz * x_init + u_z)
-        else:
-            p_z = 1 / (1 + np.exp(-np.clip(lam_xz * (2 * x_init - 1) + 0.5 * z_base, -100, 100)))
-            z_init = rs.binomial(1, p_z).astype(float)
-        z = z_init
-    elif model_type == 'M6':
-        if case in ['a', 'c']:
-            z = 0.5 * (lam_xz * u_x + u_z)
-        else:
-            z = z_base.astype(float)
-    elif model_type == 'M7':
-        if case in ['a', 'c']:
-            z = 0.5 * u_z + 0.5 * z_base
-        else:
-            z = z_base.astype(float)
 
     # X generation
-    if model_type in ['M1', 'M2', 'M3', 'M5', 'M6', 'M7']:
+    if model_type in ['M1', 'M3']:
         if case in ['a', 'c']:
             x = lam_zx * z + u_x
         else:
@@ -125,16 +103,26 @@ def generate_linear_data(model_type, case, n, params, rs=None):
                 z_binary = z.copy()
             p_x = 1 / (1 + np.exp(-np.clip(lam_zx * (2 * z_binary - 1) - 0.5, -100, 100)))
             x = rs.binomial(1, p_x).astype(float)
-    else:  # M4
+    else:
+        # M2, M4, M5, M6, M7: X exogenous
         x = u_x.astype(float) if case in ['c', 'd'] else u_x
 
-    # Continuous Y generation (LINEAR — no logit, no centering, no Bernoulli draw)
+    # Z for M4/M5 after X, before Y
+    if model_type in ['M4', 'M5']:
+        if case in ['a', 'c']:
+            z = lam_xz * x + u_z
+            z = z - np.mean(z)
+        else:
+            p_z = 1 / (1 + np.exp(-np.clip(lam_xz * (2 * x - 1) + 0.5 * z_base, -100, 100)))
+            z = rs.binomial(1, p_z).astype(float)
+
+    # Linear Y generation (LINEAR — no logit, no centering, no Bernoulli draw)
     if model_type in ['M1', 'M2', 'M5']:
         y = intercept + lam_xy * x + lam_zy * z + u_y
     else:  # M3, M4, M6, M7
         y = intercept + lam_xy * x + u_y
 
-    # Post-generation Z adjustments (same as dgp.py)
+    # Post-generation Z for M6/M7
     if model_type == 'M6':
         if case in ['a', 'c']:
             z = lam_xz * x + lam_yz * y + u_z
@@ -149,30 +137,16 @@ def generate_linear_data(model_type, case, n, params, rs=None):
         else:
             p_z = 1 / (1 + np.exp(-np.clip(lam_yz * (2*y-1) + 0.5*z_base, -100, 100)))
             z = rs.binomial(1, p_z).astype(float)
-    elif model_type == 'M4':
-        if case in ['a', 'c']:
-            z = lam_xz * x + u_z
-            z = z - np.mean(z)
-        else:
-            p_z = 1 / (1 + np.exp(-np.clip(lam_xz * (2*x-1) + 0.5*z_base, -100, 100)))
-            z = rs.binomial(1, p_z).astype(float)
-    elif model_type == 'M5':
-        if case in ['a', 'c']:
-            z = lam_xz * x + u_z
-            z = z - np.mean(z)
-        else:
-            p_z = 1 / (1 + np.exp(-np.clip(lam_xz * (2*x-1) + 0.5*z_base, -100, 100)))
-            z = rs.binomial(1, p_z).astype(float)
 
     return pd.DataFrame({'Y': y, 'X': x, 'Z': z})
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# PART B — Meta-Features (OLS-based for continuous Y)
+# PART B — Meta-Features (OLS-based for linear Y)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def compute_linear_meta_features(data, ols_ace, unadj_ace):
-    """Compute 16 meta-features for continuous Y (OLS-based)."""
+    """Compute 16 meta-features for linear Y (OLS-based)."""
     n = len(data)
     y_mean = float(data['Y'].mean())
     x_var = float(data['X'].var(ddof=1))
@@ -191,7 +165,7 @@ def compute_linear_meta_features(data, ols_ace, unadj_ace):
     z_x_coef_mag = float(abs(ols_zx.params.get('Z', 0)))
     z_x_r2 = float(ols_zx.rsquared)
 
-    # For continuous Y, the "logit" and "LPM" estimators are the same (OLS)
+    # For linear Y, the "logit" and "LPM" estimators are the same (OLS)
     # logit_lpm_diff is defined as 0 since there's no difference
     logit_lpm_diff = 0.0
 
@@ -242,7 +216,7 @@ def _generate_configs():
 
 
 def generate_linear_data_full():
-    """Generate the full 14,040-row continuous-Y dataset."""
+    """Generate the full 14,040-row linear-Y dataset."""
     t0 = time.time()
     print("=" * 70)
     print("CONTINUOUS Y: GENERATING DATA")
@@ -257,7 +231,25 @@ def generate_linear_data_full():
     sim_start = time.time()
 
     for cfg_idx, (model, case, n, params) in enumerate(configs):
-        true_ace = params['lambda_xy']  # For linear Y, ACE = lambda_xy exactly
+        true_ace_direct = params['lambda_xy']
+        if model == 'M5':
+            if case == 'a':
+                # Z = lambda_xz * X + U_Z (centered); E[Z | do(X=x)] = lambda_xz * x
+                true_ace_total = params['lambda_xy'] + params['lambda_zy'] * params['lambda_xz']
+            else:
+                # case d: Z ~ Bernoulli(Logistic(lambda_xz*(2X-1) + 0.5*Z_base)),
+                # Z_base ~ Bernoulli(0.5), so
+                # E[Z | do(X=x)] = 0.5*[L(lambda_xz*(2x-1)) + L(lambda_xz*(2x-1)+0.5)].
+                lam_xz = params['lambda_xz']
+                lam_zy = params['lambda_zy']
+                def _L(t):
+                    return 1.0 / (1.0 + np.exp(-t))
+                p1 = 0.5 * (_L(lam_xz) + _L(lam_xz + 0.5))
+                p0 = 0.5 * (_L(-lam_xz) + _L(-lam_xz + 0.5))
+                true_ace_total = params['lambda_xy'] + lam_zy * (p1 - p0)
+        else:
+            true_ace_total = params['lambda_xy']
+        true_ace = true_ace_total
         vary_names = MODEL_VARY_PARAMS[model]
 
         if (cfg_idx + 1) % 20 == 0:
@@ -282,9 +274,13 @@ def generate_linear_data_full():
 
             # Meta-features
             mf = compute_linear_meta_features(data, ols_ace, unadj_ace)
+            direct_bias_pct = (ols_ace - true_ace_direct) / max(abs(true_ace_direct), 1e-10) * 100
             record = {**mf,
                       'true_ace': true_ace,
+                      'true_ace_direct': true_ace_direct,
                       'abs_bias_pct': abs(bias_pct),
+                      'direct_bias_pct': direct_bias_pct,
+                      'abs_error_pp': abs(ols_ace - true_ace),
                       'high_bias': int(abs(bias_pct) > 5),
                       'model_type': model, 'case_type': case,
                       'lambda_xy': params['lambda_xy'],
@@ -300,7 +296,7 @@ def generate_linear_data_full():
     print(f"\nGenerated {len(df)} rows in {t1-t0:.0f}s")
     print(f"High-bias rate: {df['high_bias'].mean()*100:.1f}%")
     print(f"Mean |bias|: {df['abs_bias_pct'].mean():.2f}%")
-    print(f"Mean |bias| (binary Y comparison): 121.8%")
+    print("Mean |error| (binary Y comparison: see main pipeline)")
     return df
 
 
@@ -351,10 +347,10 @@ def main():
     t0 = time.time()
     print("=" * 70)
     print("CONTINUOUS OUTCOME EXTENSION")
-    print("Decomposing structural bias vs non-collapsibility")
+    print("Predictive performance and cross-regime transfer")
     print("=" * 70)
 
-    # ── Generate continuous Y data ──
+    # ── Generate linear Y data ──
     df_lin = generate_linear_data_full()
 
     # Save to parquet
@@ -375,9 +371,9 @@ def main():
     df_bin = pd.read_parquet(bin_parquet)
     print(f"\nLoaded binary Y data: {len(df_bin)} rows")
 
-    # ── Analysis 1: Continuous Y — within-regime RF ──
+    # ── Analysis 1: Linear Y — within-regime RF ──
     print("\n" + "=" * 70)
-    print("ANALYSIS 1: Continuous Y — Within-Regime RF")
+    print("ANALYSIS 1: Linear Y — Within-Regime RF")
     print("(train on M1/M5 linear, test on M6/M7 linear)")
     print("=" * 70)
 
@@ -388,7 +384,7 @@ def main():
     X_tr, y_tr = prepare(train_lin[FEATURES], train_lin['abs_bias_pct'].values)
     X_te, y_te = prepare(test_lin[FEATURES], test_lin['abs_bias_pct'].values)
     rf_lin = train_rf(X_tr, y_tr)
-    eval_lin = evaluate(rf_lin, test_lin, "Continuous Y RF (held-out)")
+    eval_lin = evaluate(rf_lin, test_lin, "Linear Y RF (held-out)")
 
     # Feature importance
     imp = permutation_importance(rf_lin, X_te, y_te, n_repeats=10,
@@ -400,7 +396,7 @@ def main():
 
     # ── Analysis 2: Bias magnitude comparison ──
     print("\n" + "=" * 70)
-    print("ANALYSIS 2: Bias Comparison — Linear vs Binary Y")
+    print("ANALYSIS 2: Error Comparison — Linear vs Binary Y")
     print("=" * 70)
 
     for model in MODELS:
@@ -416,30 +412,28 @@ def main():
     overall_lin = df_lin['abs_bias_pct'].mean()
     print(f"  {'ALL':<6} binary={overall_bin:>8.1f}%  linear={overall_lin:>8.1f}%  "
           f"ratio={overall_lin/overall_bin:.3f}")
-    print(f"  Implied non-collapsibility contribution: "
-          f"{(1 - overall_lin/overall_bin)*100:.1f}% of binary-Y bias")
 
     # ── Analysis 3: Cross-regime transfer ──
     print("\n" + "=" * 70)
     print("ANALYSIS 3: Cross-Regime Transfer")
     print("=" * 70)
 
-    # 3a: Binary-trained RF → continuous Y test set
+    # 3a: Binary-trained RF → linear Y test set
     train_bin = df_bin[df_bin['model_type'].isin(['M1', 'M5'])]
     X_tr_bin, y_tr_bin = prepare(train_bin[FEATURES],
                                   train_bin['abs_bias_pct'].values)
     rf_bin = train_rf(X_tr_bin, y_tr_bin)
-    print("\n  Binary-trained RF applied to continuous Y test set:")
+    print("\n  Binary-trained RF applied to linear Y test set:")
     eval_cross_bin2lin = evaluate(rf_bin, test_lin, "Binary→Linear transfer")
 
-    # 3b: Continuous-trained RF → binary Y test set
+    # 3b: Linear-trained RF → binary Y test set
     test_bin = df_bin[df_bin['model_type'].isin(['M6', 'M7'])]
-    print("\n  Continuous-trained RF applied to binary Y test set:")
+    print("\n  Linear-trained RF applied to binary Y test set:")
     eval_cross_lin2bin = evaluate(rf_lin, test_bin, "Linear→Binary transfer")
 
     # ── Analysis 4: Per-DAG breakdown (random split) ──
     print("\n" + "=" * 70)
-    print("ANALYSIS 4: Per-DAG Continuous Y R2 (Random 80/20 Split)")
+    print("ANALYSIS 4: Per-DAG Linear Y R2 (Random 80/20 Split)")
     print("=" * 70)
 
     from sklearn.model_selection import train_test_split
@@ -459,7 +453,7 @@ def main():
 
     # ── Analysis 5: Decision tree rule transfer ──
     print("\n" + "=" * 70)
-    print("ANALYSIS 5: Decision Tree Rule on Continuous Y")
+    print("ANALYSIS 5: Decision Tree Rule on Linear Y")
     print("=" * 70)
 
     from sklearn.tree import DecisionTreeRegressor, export_text
@@ -479,15 +473,13 @@ def main():
     print("=" * 70)
     print(f"{'Analysis':<35} {'R2':>8} {'MAE':>8}")
     print(f"{'─'*35} {'─'*8} {'─'*8}")
-    print(f"{'Binary Y (original held-out)':<35} {0.6330:>8.4f} {65.46:>7.2f}pp")
-    print(f"{'Continuous Y (held-out)':<35} {eval_lin['r2']:>8.4f} {eval_lin['mae']:>7.2f}")
+    print(f"{'Binary Y (original held-out)':<35} {'--':>8} {'--':>7}")
+    print(f"{'Linear Y (held-out)':<35} {eval_lin['r2']:>8.4f} {eval_lin['mae']:>7.2f}")
     print(f"{'Binary→Linear transfer':<35} {eval_cross_bin2lin['r2']:>8.4f} {eval_cross_bin2lin['mae']:>7.2f}")
     print(f"{'Linear→Binary transfer':<35} {eval_cross_lin2bin['r2']:>8.4f} {eval_cross_lin2bin['mae']:>7.2f}")
-    print(f"\nBias decomposition:")
-    print(f"  Mean |bias| (binary Y): {overall_bin:.1f}%")
-    print(f"  Mean |bias| (linear Y): {overall_lin:.1f}%")
-    print(f"  Structural bias share:  {overall_lin/overall_bin*100:.1f}%")
-    print(f"  Non-collapsibility share: {(1-overall_lin/overall_bin)*100:.1f}%")
+    print(f"\nDescriptive error magnitudes:")
+    print(f"  Mean absolute relative error (binary Y): {overall_bin:.1f}%")
+    print(f"  Mean absolute relative error (linear Y): {overall_lin:.1f}%")
 
     elapsed = time.time() - t0
     print(f"\nTotal time: {elapsed:.0f}s")

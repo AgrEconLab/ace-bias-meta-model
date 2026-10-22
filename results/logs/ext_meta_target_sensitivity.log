@@ -1,0 +1,31 @@
+=== START meta_target_sensitivity.py 2026-10-21T14:39:37Z ===
+
+=== abs_bias_pct ===
+R2=0.5506 MAE=63.1398 RMSE=118.4962
+  logit_ace            0.3446 share=0.550
+  lpm_x_coef           0.1713 share=0.274
+  unadj_ace            0.0651 share=0.104
+  n                    0.0399 share=0.064
+  logit_lpm_diff       0.0039 share=0.006
+  y_mean               0.0009 share=0.001
+  group importance: {'effect_estimates': 0.5809485924300676, 'association_diagnostics': -0.030558746922292043, 'sample_characteristics': 0.039369758262510435}
+  group share:      {'effect_estimates': 0.9278655072585907, 'association_diagnostics': 0.007075536996562257, 'sample_characteristics': 0.06505895574484712}
+  within-stratum delta R2: mean=-0.0335 median=-0.0486 share_bins_positive=0.10
+
+=== abs_error_pp ===
+R2=0.6567 MAE=0.0124 RMSE=0.0163
+  lpm_x_coef           0.4112 share=0.491
+  logit_ace            0.2028 share=0.242
+  adj_unadj_diff       0.1265 share=0.151
+  n                    0.0606 share=0.072
+  x_var                0.0167 share=0.020
+  unadj_ace            0.0149 share=0.018
+  group importance: {'effect_estimates': 0.6289635468465778, 'association_diagnostics': 0.1170937931148593, 'sample_characteristics': 0.07829014173978763}
+  group share:      {'effect_estimates': 0.7512237892624296, 'association_diagnostics': 0.15526774393607184, 'sample_characteristics': 0.09350846680149849}
+  within-stratum delta R2: mean=-0.0259 median=-0.0241 share_bins_positive=0.10
+
+Saved <package-root>\results\raw\meta_target_sensitivity.json
+Saved <package-root>\results\tables\meta_target_importance.csv
+Saved <package-root>\results\tables\meta_target_within_stratum.csv
+Saved <package-root>\results\compare\meta_target_sensitivity.md
+=== END meta_target_sensitivity.py rc=0 elapsed=35s 2026-10-21T14:40:12Z ===

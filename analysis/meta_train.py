@@ -27,7 +27,7 @@ from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.tree import DecisionTreeRegressor, DecisionTreeClassifier, export_text
 from sklearn.linear_model import LogisticRegression, LinearRegression
 from sklearn.model_selection import cross_val_score, KFold
-from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error
+from sklearn.metrics import r2_score, mean_squared_error, mean_absolute_error, cohen_kappa_score, balanced_accuracy_score
 from sklearn.metrics import accuracy_score, precision_score, recall_score, confusion_matrix
 from sklearn.inspection import permutation_importance
 
@@ -36,7 +36,7 @@ SEED = 20240625
 # Features used for meta-prediction
 FEATURES_OBSERVABLE = [
     'n', 'y_mean', 'x_var',
-    'logit_ace', 'lpm_ace', 'logit_lpm_diff',
+    'logit_ace', 'logit_lpm_diff',
     'unadj_ace', 'adj_unadj_diff',
     'z_coef_mag', 'z_x_coef_mag', 'z_x_r2',
     'y_pred_min', 'y_pred_max', 'y_pred_range',
@@ -134,6 +134,8 @@ def train_random_forest(X_train, y_train, X_test, y_test, feature_names):
     print(f"    Accuracy:  {acc:.3f}")
     print(f"    Precision: {prec:.3f}")
     print(f"    Recall:    {rec:.3f}")
+    print(f"    Cohen's kappa: {cohen_kappa_score(y_test_high, y_pred_high):.3f}")
+    print(f"    Balanced accuracy: {balanced_accuracy_score(y_test_high, y_pred_high):.3f}")
     print(f"    Confusion matrix:")
     print(f"      TN={cm[0,0]}  FP={cm[0,1]}")
     print(f"      FN={cm[1,0]}  TP={cm[1,1]}")

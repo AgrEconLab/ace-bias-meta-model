@@ -1,0 +1,29 @@
+# Decision-tree threshold stability
+
+- bootstrap replicates: 500
+- training configurations: 324
+
+## Root split
+
+- point-estimate root: `lpm_x_coef` <= -0.0243
+- same root feature in 100.0% of replicates
+- root threshold within +/-0.01: 93.2%
+- root threshold within +/-0.02: 100.0%
+
+## Split thresholds
+
+| feature | count | 2.5% | median | 97.5% |
+|---|---:|---:|---:|---:|
+| lpm_x_coef | 3216 | -0.1334 | -0.0295 | 0.1711 |
+| n | 252 | 625.0000 | 625.0000 | 3000.0000 |
+
+## Feature usage by depth
+
+- depth 0: {'lpm_x_coef': 500}
+- depth 1: {'lpm_x_coef': 929, 'n': 71}
+- depth 2: {'lpm_x_coef': 1787, 'n': 181}
+
+## Sample-size threshold
+
+- count: 252
+- 2.5/50/97.5%: 625 / 625 / 3000
